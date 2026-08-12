@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号管理 - 远程修改服务器用户密码资源管理系统</title>
+    <link rel="stylesheet" href="/css/style.css">
+<style>
+  /* 导航栏样式 - 内联以确保优先级 */
+  .navbar {
+    background-color: #2c3e50 !important;
+    color: white !important;
+    padding: 15px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  
+  .navbar .container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+  }
+  
+  .navbar .logo {
+    font-size: 1.5em !important;
+    font-weight: bold !important;
+    color: white !important;
+    text-decoration: none !important;
+  }
+  
+  .navbar .nav-links {
+    display: flex !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .navbar .nav-links li {
+    margin-left: 10px !important;
+  }
+  
+  .navbar .nav-links a {
+    color: white !important;
+    text-decoration: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    transition: background-color 0.3s !important;
+  }
+  
+  .navbar .nav-links a:hover {
+    background-color: #34495e !important;
+  }
+  
+  .navbar .nav-links a.active {
+    background-color: #3498db !important;
+  }
+  
+  .navbar .nav-links button {
+    background-color: #e74c3c !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s !important;
+  }
+  
+  .navbar .nav-links button:hover {
+    background-color: #c0392b !important;
+  }
+  
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .navbar .container {
+      flex-direction: column !important;
+    }
+    
+    .navbar .nav-links {
+      margin-top: 10px !important;
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+    }
+    
+    .navbar .nav-links li {
+      margin: 5px !important;
+    }
+  }
+</style>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1, h2, h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        /* 导航栏样式已在全局CSS中定义 */
+        
+        
+        /* 功能卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 16px;
+            margin: 4px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            min-width: 80px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        /* 用户操作按钮样式 */
+        .btn.small.action-btn {
+            padding: 8px 14px;
+            font-size: 14px;
+            min-width: 70px;
+            margin: 2px;
+        }
+        
+        /* 优化用户表格中的操作按钮 */
+        .table td:last-child .action-btn {
+            padding: 12px 16px;
+            font-size: 15px;
+            min-width: 100px;
+            margin: 4px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            text-align: center;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 增强操作按钮的交互效果 */
+        .table td:last-child .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 为不同类型的操作按钮添加独特样式 */
+        .table td:last-child .btn.primary.action-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .table td:last-child .btn.success.action-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        /* 危险/禁用按钮 - 显示"禁用"文本时使用红色 */
+        .table td:last-child .btn.danger.action-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        /* 启用按钮 - 显示"启用"文本时使用绿色（复用success类） */
+        
+        /* 次要按钮样式 */
+        .btn.secondary {
+            background-color: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn.secondary:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 表格操作列按钮 - 更窄更紧凑 */
+        .table .action-btn {
+            min-width: 60px;
+            padding: 6px 10px;
+            font-size: 12px;
+            gap: 4px;
+            text-align: center;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn.primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn.primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn.secondary {
+            background-color: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn.secondary:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+            transform: translateY(-1px);
+        }
+        
+        .btn.secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        /* 已删除重复的hover样式 */
+        
+        .btn.danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn.danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn.success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn.success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn.warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn.warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        .btn.small {
+            padding: 6px 10px;
+            font-size: 12px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            min-width: 80px;
+            text-align: center;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 操作列按钮组 - 横向排列 */
+        .table td:nth-child(5) {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            white-space: nowrap;
+        }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        
+        /* 表单操作按钮容器 */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding-top: 20px;
+            margin-top: 24px;
+            border-top: 1px solid #f0f0f0;
+            gap: 12px;
+        }
+        
+        /* 表格样式 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            table-layout: fixed;
+        }
+        
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .table tr {
+            height: auto;
+            min-height: 48px;
+        }
+        
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* 优化各列宽度 */
+        .table th:nth-child(1),
+        .table td:nth-child(1) {
+            width: 20%;
+            white-space: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 60px;
+            line-height: 20px;
+        }
+        
+        .table th:nth-child(2),
+        .table td:nth-child(2) {
+            width: 10%;
+        }
+        
+        /* 全名列 - 支持折行和省略 */
+        .table th:nth-child(3),
+        .table td:nth-child(3) {
+            width: 15%;
+            white-space: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 60px;
+            line-height: 20px;
+        }
+        
+        /* 描述列 - 支持折行和省略 */
+        .table th:nth-child(4),
+        .table td:nth-child(4) {
+            width: 20%;
+            white-space: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 60px;
+            line-height: 20px;
+        }
+        
+        /* 操作列宽度调整 */
+        .table th:nth-child(5),
+        .table td:nth-child(5) {
+            width: 35%;
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+        
+        .modal.show {
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 24px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .modal.show .modal-content {
+            transform: translateY(0);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .close-button {
+            color: #666;
+            font-size: 24px;
+            font-weight: normal;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;
+            background-color: #f5f5f5;
+            text-decoration: none;
+        }
+        
+        /* 状态标签样式 */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            text-align: center;
+            min-width: 60px;
+        }
+        
+        .status-badge.enabled {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .status-badge.disabled {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        /* 消息提示样式 */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .message.show {
+            opacity: 1;
+        }
+        
+        .message.success {
+            background-color: #2ecc71;
+        }
+        
+        .message.error {
+            background-color: #e74c3c;
+        }
+        
+        .message.info {
+            background-color: #3498db;
+        }
+        
+        /* 加载状态样式 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        /* 搜索框样式 */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+        }
+        
+        .search-container input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 14px;
+        }
+        
+        .search-container button {
+            padding: 8px 16px;
+            border: 1px solid #3498db;
+            border-left: none;
+            border-radius: 0 4px 4px 0;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .search-container button:hover {
+            background-color: #2980b9;
+        }
+        
+        /* 密码强度指示器 */
+        .password-strength {
+            width: 100%;
+            height: 5px;
+            background-color: #ddd;
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+        }
+        
+        /* 响应式设计 */
+        /* 响应式设计 - 增强版 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .navbar .container {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .navbar .logo {
+                font-size: 18px;
+                text-align: center;
+            }
+            
+            .navbar .nav-links {
+                margin-top: 0;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 0;
+            }
+            
+            .navbar .nav-links li {
+                margin: 5px;
+            }
+            
+            .navbar .nav-links a {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            h1, h2 {
+                font-size: 20px;
+                text-align: center;
+            }
+            
+            /* 表格响应式调整 */
+            .table-container {
+                overflow-x: auto;
+                margin-bottom: 20px;
+            }
+            
+            table {
+                width: 100%;
+                min-width: 700px;
+            }
+            
+            table th, table td {
+                padding: 10px 8px;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+            
+            /* 按钮响应式调整 */
+            .btn {
+                padding: 10px 15px;
+                font-size: 14px;
+                margin: 5px 0;
+            }
+            
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+            }
+            
+            /* 表单响应式调整 */
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+            }
+            
+            /* 模态框响应式调整 */
+            .modal-content {
+                width: 95%;
+                margin: 25% auto;
+                padding: 15px;
+            }
+            
+            /* 搜索栏响应式调整 */
+            .search-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .search-bar input,
+            .search-bar select {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            /* 操作栏响应式调整 */
+            .action-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">远程服务器登录管理系统V2.0</div>
+            <ul class="nav-links">
+                <li><a href="/">首页</a></li>
+                <li><a href="/users" class="active">账号管理</a></li>
+                <li><a href="/authorization">用户管理</a></li>
+                <li><a href="/sessions">会话管理</a></li>
+                <li><a href="/security">安全操作</a></li>
+                <li><a href="/admin-management">系统管理</a></li>
+
+                <li><a href="/logout" class="btn danger">退出登录</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h1>账号管理</h1>
+        
+        <!-- 用户管理卡片 -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>用户列表</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn primary" onclick="refreshUserList()">刷新列表</button>
+                    <button class="btn primary" onclick="openAddUserModal()">新增用户</button>
+                </div>
+            </div>
+            
+            <!-- 用户前缀设置 -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center;">
+                <div style="display: flex; align-items: center; margin-right: 10px;">
+                    <input type="checkbox" id="enableUserPrefix" checked style="margin-right: 5px;">
+                    <label for="enableUserPrefix" style="margin: 0;">启用前缀</label>
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label for="userPrefix" style="margin-bottom: 4px;">用户前缀</label>
+                    <input type="text" id="userPrefix" placeholder="输入用户前缀，如 #4-" style="width: 100%;">
+                </div>
+                <button class="btn primary" onclick="saveUserPrefix()" style="margin-top: 22px;">保存前缀</button>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="搜索用户名...">
+                <button onclick="searchUser()">搜索</button>
+            </div>
+            
+            <div class="loading" id="loading">加载中...</div>
+            
+            <table class="table" id="userTable">
+                <thead>
+                    <tr>
+                        <th>机位账号</th>
+                        <th>状态</th>
+                        <th>全名</th>
+                        <th>描述</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- 用户列表将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 编辑用户模态框 -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑用户信息</h3>
+                <span class="close-button" onclick="closeEditUserModal()">&times;</span>
+            </div>
+            <form id="editUserForm">
+                <div class="form-group">
+                    <label for="editUsername">用户名</label>
+                    <input type="text" id="editUsername" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="editFullName">全名</label>
+                    <input type="text" id="editFullName" placeholder="请输入用户全名">
+                </div>
+                <div class="form-group">
+                    <label for="editDescription">描述</label>
+                    <textarea id="editDescription" rows="3" placeholder="请输入用户描述"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editStatus">状态</label>
+                    <select id="editStatus">
+                        <option value="enabled">已启用</option>
+                        <option value="disabled">已禁用</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn secondary" onclick="closeEditUserModal()">取消</button>
+                    <button type="submit" class="btn primary">保存修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 新增用户模态框 -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新增用户</h3>
+                <span class="close-button" onclick="closeAddUserModal()">&times;</span>
+            </div>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label for="newUsername">用户名</label>
+                    <input type="text" id="newUsername" required placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">密码</label>
+                    <input type="password" id="newPassword" required placeholder="请输入密码">
+                    <div class="password-strength">
+                        <div id="passwordStrengthBar" class="password-strength-bar"></div>
+                    </div>
+                    <small id="passwordStrengthText" style="display: block; margin-top: 5px; color: #666;"></small>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <input type="password" id="confirmPassword" required placeholder="请再次输入密码">
+                    <small id="passwordMatchText" style="display: block; margin-top: 5px;"></small>
+                </div>
+                <div class="form-group">
+                    <label for="newFullName">全名</label>
+                    <input type="text" id="newFullName" placeholder="请输入用户全名">
+                </div>
+                <div class="form-group">
+            <label for="newDescription">描述</label>
+            <textarea id="newDescription" rows="3" placeholder="请输入用户描述"></textarea>
+        </div>
+        <div class="form-group">
+            <label style="display: flex !important; align-items: center !important; gap: 8px !important; font-weight: normal !important; cursor: pointer !important;" for="isAdmin">
+                <input type="checkbox" id="isAdmin" style="width: 18px !important; height: 18px !important; margin: 0 !important; cursor: pointer !important; flex-shrink: 0; display: inline-block !important;">
+                赋予管理员权限（谨慎使用）
+            </label>
+        </div>
+        <div class="form-actions">
+                <button type="button" class="btn secondary" onclick="closeAddUserModal()">取消</button>
+                <button type="submit" class="btn primary">创建用户</button>
+            </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 修改密码模态框 -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>修改用户密码</h3>
+                <span class="close-button" onclick="closeChangePasswordModal()">&times;</span>
+            </div>
+            <form id="changePasswordForm">
+                <div class="form-group">
+                    <label for="changePasswordUsername">用户名</label>
+                    <input type="text" id="changePasswordUsername" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="changePassword">新密码</label>
+                    <input type="password" id="changePassword" required placeholder="请输入新密码">
+                    <div class="password-strength">
+                        <div id="changePasswordStrengthBar" class="password-strength-bar"></div>
+                    </div>
+                    <small id="changePasswordStrengthText" style="display: block; margin-top: 5px; color: #666;"></small>
+                </div>
+                <div class="form-group">
+                    <label for="confirmChangePassword">确认新密码</label>
+                    <input type="password" id="confirmChangePassword" required placeholder="请再次输入新密码">
+                    <small id="changePasswordMatchText" style="display: block; margin-top: 5px;"></small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn secondary" onclick="closeChangePasswordModal()">取消</button>
+                    <button type="submit" class="btn primary">修改密码</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+
+    
+    <!-- 消息提示 -->
+    <div id="message" class="message"></div>
+    
+    <script>
+        // 全局变量
+        let currentUsers = [];
+        let selectedUsername = '';
+        
+        // DOM元素
+        const userTableBody = document.getElementById('userTableBody');
+        const loading = document.getElementById('loading');
+        const editUserModal = document.getElementById('editUserModal');
+        const addUserModal = document.getElementById('addUserModal');
+        const changePasswordModal = document.getElementById('changePasswordModal');
+        const editUserForm = document.getElementById('editUserForm');
+        const addUserForm = document.getElementById('addUserForm');
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        const message = document.getElementById('message');
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+            loadUserPrefix();
+            
+            // 表单提交事件
+            editUserForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                saveUserInfo();
+            });
+            
+            addUserForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                addNewUser();
+            });
+            
+            changePasswordForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                updatePassword();
+            });
+            
+            // 密码输入框事件监听
+            document.getElementById('newPassword').addEventListener('input', function() {
+                checkPasswordStrength(this.value, 'passwordStrengthBar', 'passwordStrengthText');
+                checkPasswordMatch(this.value, document.getElementById('confirmPassword').value);
+            });
+            
+            document.getElementById('confirmPassword').addEventListener('input', function() {
+                checkPasswordMatch(document.getElementById('newPassword').value, this.value);
+            });
+            
+            document.getElementById('changePassword').addEventListener('input', function() {
+                checkPasswordStrength(this.value, 'changePasswordStrengthBar', 'changePasswordStrengthText');
+                checkChangePasswordMatch(this.value, document.getElementById('confirmChangePassword').value);
+            });
+            
+            document.getElementById('confirmChangePassword').addEventListener('input', function() {
+                checkChangePasswordMatch(document.getElementById('changePassword').value, this.value);
+            });
+            
+            // 搜索框回车事件
+            document.getElementById('searchInput').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    searchUser();
+                }
+            });
+        });
+        
+        // 加载用户列表
+        function loadUsers() {
+            loading.classList.add('show');
+            
+            fetch('/api/users')
+                .then(response => response.json())
+                .then(data => {
+                    loading.classList.remove('show');
+                    
+                    if (data.success) {
+                        currentUsers = data.users;
+                        renderUserTable(currentUsers);
+                    } else {
+                        showMessage('获取用户列表失败: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    loading.classList.remove('show');
+                    showMessage('获取用户列表时发生错误: ' + error.message, 'error');
+                });
+        }
+        
+        // 刷新用户列表
+        function refreshUserList() {
+            loadUsers(); // 调用现有函数重新加载用户列表
+        }
+        
+        // 渲染用户表格
+        function renderUserTable(users) {
+            userTableBody.innerHTML = '';
+            
+            if (users.length === 0) {
+                userTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">没有找到用户</td></tr>';
+                return;
+            }
+            
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                
+                // 状态标签
+                const statusClass = user.disabled ? 'status-badge disabled' : 'status-badge enabled';
+                const statusText = user.disabled ? '已禁用' : '已启用';
+                
+                // 处理可能不存在的字段
+                const fullname = user.fullname || user.fullName || '-';
+                const description = user.description || '-';
+                
+                // 根据用户状态设置按钮类名和文本
+                const toggleActionClass = user.disabled ? 'success' : 'danger';
+                const toggleActionText = user.disabled ? '启用' : '禁用';
+                
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td>${fullname}</td>
+                    <td>${description}</td>
+                    <td>
+                        <button class="btn small primary action-btn" onclick="openEditUserModal('${user.name}')">编辑</button>
+                        <button class="btn small secondary action-btn" onclick="openChangePasswordModal('${user.name}')">修改密码</button>
+                        <button class="btn small ${toggleActionClass} action-btn" onclick="toggleUserStatus('${user.name}', ${!user.disabled})">${toggleActionText}</button>
+                    </td>
+                `;
+                
+                userTableBody.appendChild(row);
+            });
+        }
+        
+        // 搜索用户
+        function searchUser() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filteredUsers = currentUsers.filter(user => 
+                user.name.toLowerCase().includes(searchTerm)
+            );
+            
+            renderUserTable(filteredUsers);
+        }
+        
+        // 打开编辑用户模态框
+        function openEditUserModal(username) {
+            selectedUsername = username;
+            
+            // 查找用户信息
+            const user = currentUsers.find(u => u.name === username);
+            if (user) {
+                document.getElementById('editUsername').value = user.name;
+                document.getElementById('editFullName').value = user.fullname || user.fullName || '';
+                document.getElementById('editDescription').value = user.description || '';
+                document.getElementById('editStatus').value = user.disabled ? 'disabled' : 'enabled';
+            }
+            
+            editUserModal.style.display = 'block';
+            // 触发重排后添加动画类
+            setTimeout(() => {
+                editUserModal.classList.add('show');
+            }, 10);
+        }
+        
+        // 关闭编辑用户模态框
+        function closeEditUserModal() {
+            editUserModal.classList.remove('show');
+            // 等待动画完成后隐藏
+            setTimeout(() => {
+                editUserModal.style.display = 'none';
+                selectedUsername = '';
+                editUserForm.reset();
+            }, 300);
+        }
+        
+        // 保存用户信息
+        function saveUserInfo() {
+            const fullName = document.getElementById('editFullName').value;
+            const description = document.getElementById('editDescription').value;
+            const status = document.getElementById('editStatus').value;
+            
+            loading.classList.add('show');
+            
+            // 先更新用户信息
+            fetch('/api/users/update-info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: selectedUsername,
+                    fullName: fullName,
+                    description: description
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    loading.classList.remove('show');
+                    showMessage('更新用户信息失败: ' + data.message, 'error');
+                    return Promise.reject();
+                }
+                
+                // 然后更新用户状态
+                const isDisabled = status === 'disabled';
+                return fetch('/api/users/set-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: selectedUsername,
+                        disabled: isDisabled
+                    })
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.classList.remove('show');
+                
+                if (data.success) {
+                    showMessage('用户信息更新成功', 'success');
+                    closeEditUserModal();
+                    loadUsers(); // 重新加载用户列表
+                } else {
+                    showMessage('更新用户状态失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                loading.classList.remove('show');
+                if (error) {
+                    showMessage('保存用户信息时发生错误: ' + error.message, 'error');
+                }
+            });
+        }
+        
+        // 打开新增用户模态框
+        function openAddUserModal() {
+            addUserForm.reset();
+            document.getElementById('passwordStrengthBar').style.width = '0';
+            document.getElementById('passwordStrengthText').textContent = '';
+            document.getElementById('passwordMatchText').textContent = '';
+            
+            addUserModal.style.display = 'block';
+            // 触发重排后添加动画类
+            setTimeout(() => {
+                addUserModal.classList.add('show');
+            }, 10);
+        }
+        
+        // 关闭新增用户模态框
+        function closeAddUserModal() {
+            addUserModal.classList.remove('show');
+            // 等待动画完成后隐藏
+            setTimeout(() => {
+                addUserModal.style.display = 'none';
+            }, 300);
+        }
+        
+        // 新增用户
+        // 优化复选框样式
+        const checkboxStyle = document.createElement('style');
+        checkboxStyle.textContent = `
+            .checkbox-container {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                cursor: pointer !important;
+                padding: 5px 0 !important;
+                width: auto !important;
+                height: auto !important;
+                flex-direction: row !important;
+            }
+            
+            .form-checkbox {
+                margin: 0 !important;
+                width: 18px !important;
+                height: 18px !important;
+                cursor: pointer !important;
+                display: inline-block !important;
+                vertical-align: middle !important;
+            }
+            
+            .checkbox-label {
+                margin: 0 !important;
+                cursor: pointer !important;
+                font-size: 14px !important;
+                color: #333 !important;
+                display: inline-block !important;
+                vertical-align: middle !important;
+            }
+            
+            .checkbox-container:hover .checkbox-label {
+                color: #2c3e50 !important;
+            }
+            
+            /* 确保表单组不会干扰复选框布局 */
+            .form-group {
+                display: block;
+                margin-bottom: 15px;
+            }
+        `;
+        document.head.appendChild(checkboxStyle);
+
+
+        
+
+        
+
+        
+        // 切换用户状态（启用/禁用）
+        function toggleUserStatus(username, disable) {
+            const action = disable ? '禁用' : '启用';
+            if (confirm(`确定要${action}用户 ${username} 吗？`)) {
+                loading.classList.add('show');
+                
+                fetch('/api/users/set-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        disabled: disable
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loading.classList.remove('show');
+                    
+                    if (data.success) {
+                        showMessage(`用户已成功${action}`, 'success');
+                        loadUsers(); // 重新加载用户列表
+                    } else {
+                        showMessage(`${action}用户失败: ` + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    loading.classList.remove('show');
+                    showMessage(`${action}用户时发生错误: ` + error.message, 'error');
+                });
+            }
+        }
+        
+        // 检查密码强度
+        function checkPasswordStrength(password, barId, textId) {
+            const strengthBar = document.getElementById(barId);
+            const strengthText = document.getElementById(textId);
+            
+            let strength = 0;
+            let feedback = '';
+            
+            // 密码长度检查
+            if (password.length >= 8) {
+                strength += 25;
+            } else {
+                feedback = '密码长度至少8个字符';
+            }
+            
+            // 包含数字检查
+            if (/[0-9]/.test(password)) {
+                strength += 25;
+            }
+            
+            // 包含小写字母检查
+            if (/[a-z]/.test(password)) {
+                strength += 25;
+            }
+            
+            // 包含大写字母或特殊字符检查
+            if (/[A-Z]/.test(password) || /[^A-Za-z0-9]/.test(password)) {
+                strength += 25;
+            }
+            
+            // 设置强度条样式
+            strengthBar.style.width = `${strength}%`;
+            
+            // 设置强度条颜色
+            if (strength < 25) {
+                strengthBar.style.backgroundColor = '#e74c3c';
+                if (!feedback) feedback = '密码强度：弱';
+            } else if (strength < 50) {
+                strengthBar.style.backgroundColor = '#f39c12';
+                if (!feedback) feedback = '密码强度：中低';
+            } else if (strength < 75) {
+                strengthBar.style.backgroundColor = '#f1c40f';
+                if (!feedback) feedback = '密码强度：中';
+            } else if (strength < 100) {
+                strengthBar.style.backgroundColor = '#2ecc71';
+                if (!feedback) feedback = '密码强度：良好';
+            } else {
+                strengthBar.style.backgroundColor = '#27ae60';
+                if (!feedback) feedback = '密码强度：强';
+            }
+            
+            strengthText.textContent = feedback;
+        }
+        
+        // 检查密码是否匹配
+        function checkPasswordMatch(password, confirmPassword) {
+            const matchText = document.getElementById('passwordMatchText');
+            
+            if (confirmPassword) {
+                if (password === confirmPassword) {
+                    matchText.textContent = '密码匹配';
+                    matchText.style.color = '#27ae60';
+                } else {
+                    matchText.textContent = '密码不匹配';
+                    matchText.style.color = '#e74c3c';
+                }
+            } else {
+                matchText.textContent = '';
+            }
+        }
+        
+        // 检查修改密码时的密码匹配
+        function checkChangePasswordMatch(password, confirmPassword) {
+            const matchText = document.getElementById('changePasswordMatchText');
+            
+            if (confirmPassword) {
+                if (password === confirmPassword) {
+                    matchText.textContent = '密码匹配';
+                    matchText.style.color = '#27ae60';
+                } else {
+                    matchText.textContent = '密码不匹配';
+                    matchText.style.color = '#e74c3c';
+                }
+            } else {
+                matchText.textContent = '';
+            }
+        }
+        
+        // 显示消息提示
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = `message ${type} show`;
+            
+            setTimeout(() => {
+                message.className = 'message';
+            }, 3000);
+        }
+        
+        // 打开修改密码模态框
+        function openChangePasswordModal(username) {
+            selectedUsername = username;
+            document.getElementById('changePasswordUsername').value = username;
+            
+            changePasswordModal.style.display = 'block';
+            // 触发重排后添加动画类
+            setTimeout(() => {
+                changePasswordModal.classList.add('show');
+            }, 10);
+        }
+        
+        // 关闭修改密码模态框
+        function closeChangePasswordModal() {
+            changePasswordModal.classList.remove('show');
+            // 等待动画完成后隐藏
+            setTimeout(() => {
+                changePasswordModal.style.display = 'none';
+                changePasswordForm.reset();
+                document.getElementById('changePasswordStrengthBar').style.width = '0';
+                document.getElementById('changePasswordStrengthText').textContent = '';
+                document.getElementById('changePasswordMatchText').textContent = '';
+            }, 300);
+        }
+        
+        // 更新用户密码
+        function updatePassword() {
+            const username = selectedUsername;
+            const newPassword = document.getElementById('changePassword').value;
+            const confirmPassword = document.getElementById('confirmChangePassword').value;
+            
+            // 验证密码是否一致
+            if (newPassword !== confirmPassword) {
+                showMessage('两次输入的密码不一致', 'error');
+                return;
+            }
+            
+            loading.classList.add('show');
+            
+            fetch('/api/users/change-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    newPassword: newPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.classList.remove('show');
+                
+                if (data.success) {
+                    showMessage('密码修改成功', 'success');
+                    closeChangePasswordModal();
+                } else {
+                    showMessage('密码修改失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                loading.classList.remove('show');
+                showMessage('修改密码时发生错误: ' + error.message, 'error');
+            });
+        }
+        
+        // 点击模态框外部关闭模态框
+        window.addEventListener('click', function(event) {
+            if (event.target === editUserModal) {
+                closeEditUserModal();
+            } else if (event.target === addUserModal) {
+                closeAddUserModal();
+            } else if (event.target === changePasswordModal) {
+                closeChangePasswordModal();
+            }
+        });
+        
+        // 加载用户前缀
+        function loadUserPrefix() {
+            const savedPrefix = localStorage.getItem('userPrefix');
+            const isEnabled = localStorage.getItem('enableUserPrefix') !== 'false';
+            if (savedPrefix) {
+                document.getElementById('userPrefix').value = savedPrefix;
+            }
+            document.getElementById('enableUserPrefix').checked = isEnabled;
+        }
+        
+        // 保存用户前缀
+        function saveUserPrefix() {
+            const prefix = document.getElementById('userPrefix').value;
+            const isEnabled = document.getElementById('enableUserPrefix').checked;
+            localStorage.setItem('userPrefix', prefix);
+            localStorage.setItem('enableUserPrefix', isEnabled.toString());
+            showMessage('用户前缀设置保存成功', 'success');
+        }
+        
+        // 修改新增用户函数，应用前缀
+        function addNewUser() {
+            let username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const fullName = document.getElementById('newFullName').value;
+            const description = document.getElementById('newDescription').value;
+            const isAdmin = document.getElementById('isAdmin').checked;
+            
+            // 验证密码是否一致
+            if (password !== confirmPassword) {
+                showMessage('两次输入的密码不一致', 'error');
+                return;
+            }
+            
+            // 应用用户前缀（如果启用）
+            const isPrefixEnabled = localStorage.getItem('enableUserPrefix') !== 'false';
+            const userPrefix = localStorage.getItem('userPrefix') || '';
+            if (isPrefixEnabled && userPrefix) {
+                username = userPrefix + username;
+            }
+            
+            // 验证用户名长度（最大20个字符）
+            const maxUsernameLength = 20;
+            if (username.length > maxUsernameLength) {
+                showMessage(`用户名长度不能超过${maxUsernameLength}个字符，当前长度为${username.length}个字符`, 'error');
+                return;
+            }
+            
+            // 验证用户名格式
+            // 修改正则表达式以支持中文和特殊字符
+          if (!/^[\w\u4e00-\u9fa5#\-:+]+$/.test(username)) {
+            showMessage('用户名只能包含字母、数字、下划线、中文字符和特殊字符(# - : +)', 'error');
+            return;
+            }
+            
+            loading.classList.add('show');
+            
+            fetch('/api/users/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                    fullName: fullName,
+                    description: description,
+                    isAdmin: isAdmin
+                })
+            })
+                    .then(response => response.json())
+                    .then(data => {
+                        loading.classList.remove('show');
+                        
+                        if (data.success) {
+                            showMessage('用户创建成功', 'success');
+                            closeAddUserModal();
+                            loadUsers(); // 重新加载用户列表
+                        } else {
+                            showMessage('创建用户失败: ' + data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        loading.classList.remove('show');
+                        showMessage('创建用户时发生错误: ' + error.message, 'error');
+                    });
+        }
+    </script>
+</body>
+</html>

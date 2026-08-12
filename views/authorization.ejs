@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 远程服务器登录管理系统V2.0</title>
+    <link rel="stylesheet" href="/css/style.css">
+<style>
+  /* 导航栏样式 - 内联以确保优先级 */
+  .navbar {
+    background-color: #2c3e50 !important;
+    color: white !important;
+    padding: 15px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  
+  .navbar .container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+  }
+  
+  .navbar .logo {
+    font-size: 1.5em !important;
+    font-weight: bold !important;
+    color: white !important;
+    text-decoration: none !important;
+  }
+  
+  .navbar .nav-links {
+    display: flex !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .navbar .nav-links li {
+    margin-left: 10px !important;
+  }
+  
+  .navbar .nav-links a {
+    color: white !important;
+    text-decoration: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    transition: background-color 0.3s !important;
+  }
+  
+  .navbar .nav-links a:hover {
+    background-color: #34495e !important;
+  }
+  
+  .navbar .nav-links a.active {
+    background-color: #3498db !important;
+  }
+  
+  .navbar .nav-links button {
+    background-color: #e74c3c !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s !important;
+  }
+  
+  .navbar .nav-links button:hover {
+    background-color: #c0392b !important;
+  }
+  
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .navbar .container {
+      flex-direction: column !important;
+    }
+    
+    .navbar .nav-links {
+      margin-top: 10px !important;
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+    }
+    
+    .navbar .nav-links li {
+      margin: 5px !important;
+    }
+  }
+</style>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1, h2, h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        /* 导航栏样式已在全局CSS中定义 */
+        
+        /* 功能卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* 按钮样式 - 采用security页面风格 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            margin: 2px;
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #2980b9;
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn.primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn.primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn.secondary {
+            background-color: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn.secondary:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+            transform: translateY(-1px);
+        }
+        
+        .btn.danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn.danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn.success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn.success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn.warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn.warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn.small {
+            padding: 4px 8px;
+            font-size: 12px;
+            min-width: auto;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* 表单样式 - 优化版 */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .form-group input:readonly {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border-color: #dee2e6;
+        }
+        
+        /* 表单按钮容器样式 */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        /* 表格样式 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* 模态框样式 - 优化版 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border: none;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .close-button {
+            color: #999;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close-button:hover,
+        .close-button:focus {
+            color: #34495e;
+            background-color: #f8f9fa;
+        }
+        
+        /* 状态标签样式 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-badge.enabled {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .status-badge.disabled {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .status-badge.authorized {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .status-badge.unauthorized {
+            background-color: #e67e22;
+            color: white;
+        }
+        
+        .status-badge.not-started {
+            background-color: #9b59b6;
+            color: white;
+        }
+        
+        /* 在线状态样式 */
+        .status-badge.offline {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .status-badge.logged-off {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .status-badge.logged-in {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        /* 消息提示样式 */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .message.show {
+            opacity: 1;
+        }
+        
+        .message.success {
+            background-color: #2ecc71;
+        }
+        
+        .message.error {
+            background-color: #e74c3c;
+        }
+        
+        .message.info {
+            background-color: #3498db;
+        }
+        
+        /* 加载状态样式 - 优化显示位置 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            position: relative;
+            color: #3498db;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        /* 表格容器样式 */
+        .table-wrapper {
+            position: relative;
+        }
+        
+        /* 搜索框样式 */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+        }
+        
+        .search-container input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 14px;
+        }
+        
+        .search-container button {
+            padding: 8px 16px;
+            border: 1px solid #3498db;
+            border-left: none;
+            border-radius: 0 4px 4px 0;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .search-container button:hover {
+            background-color: #2980b9;
+        }
+        
+        /* 响应式设计 - 增强版 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .navbar .container {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .navbar .logo {
+                font-size: 18px;
+                text-align: center;
+            }
+            
+            .navbar .nav-links {
+                margin-top: 0;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 0;
+            }
+            
+            .navbar .nav-links li {
+                margin: 5px;
+            }
+            
+            .navbar .nav-links a {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            h1, h2 {
+                font-size: 20px;
+                text-align: center;
+            }
+            
+            /* 表格响应式调整 */
+            .table-container {
+                overflow-x: auto;
+                margin-bottom: 20px;
+            }
+            
+            table {
+                width: 100%;
+                min-width: 600px;
+            }
+            
+            table th, table td {
+                padding: 10px 8px;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+            
+            /* 按钮响应式调整 */
+            .btn {
+                padding: 10px 15px;
+                font-size: 14px;
+                margin: 5px 0;
+            }
+            
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+            }
+            
+            /* 表单响应式调整 */
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .form-group input,
+            .form-group select {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+            }
+            
+            /* 模态框响应式调整 */
+            .modal-content {
+                width: 95%;
+                margin: 25% auto;
+                padding: 15px;
+            }
+            
+            /* 搜索栏响应式调整 */
+            .search-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .search-bar input,
+            .search-bar select {
+                width: 100%;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">远程服务器登录管理系统V2.0</div>
+            <ul class="nav-links">
+                <li><a href="/">首页</a></li>
+                <li><a href="/users">账号管理</a></li>
+                <li><a href="/authorization" class="active">用户管理</a></li>
+                <li><a href="/sessions">会话管理</a></li>
+                <li><a href="/security">安全操作</a></li>
+                <li><a href="/admin-management">系统管理</a></li>
+
+                <li><a href="/logout" class="btn danger">退出登录</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h1>用户管理</h1>
+        
+        <!-- 授权管理卡片 -->
+        <div class="card">
+            <h2>用户管理设置</h2>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="搜索用户...">
+                <button onclick="searchUser()">搜索</button>
+                <button onclick="loadData()" style="margin-left: 10px; background-color: #95a5a6;">刷新</button>
+            </div>
+            
+            <div class="table-wrapper">
+                <table class="table" id="userTable">
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>当前状态</th>
+                            <th>授权开始时间</th>
+                            <th>授权结束时间</th>
+                            <th>授权状态</th>
+                            <th>在线状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <!-- 加载提示移到表格内部 -->
+                        <tr class="loading" id="loading">
+                            <td colspan="7">加载中...</td>
+                        </tr>
+                        <!-- 用户列表将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 设置授权时间模态框 -->
+    <div id="setAuthorizationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>设置用户授权时间</h3>
+                <span class="close-button" onclick="closeAuthorizationModal()">&times;</span>
+            </div>
+            <form id="setAuthorizationForm">
+                <div class="form-group">
+                    <label for="usernameInput">用户名</label>
+                    <input type="text" id="usernameInput" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="startDateInput">授权开始时间</label>
+                    <input type="datetime-local" id="startDateInput" required>
+                </div>
+                <div class="form-group">
+                    <label for="endDateInput">授权结束时间</label>
+                    <input type="datetime-local" id="endDateInput" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn secondary" onclick="closeAuthorizationModal()">取消</button>
+                    <button type="submit" class="btn primary">保存授权</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 消息提示 -->
+    <div id="message" class="message"></div>
+    
+    <script>
+        // 全局变量
+        let currentUsers = [];
+        let currentSessions = {};
+        let selectedUsername = '';
+        
+        // DOM元素
+        const userTableBody = document.getElementById('userTableBody');
+        const loading = document.getElementById('loading');
+        const authorizationModal = document.getElementById('setAuthorizationModal');
+        const usernameInput = document.getElementById('usernameInput');
+        const setAuthorizationForm = document.getElementById('setAuthorizationForm');
+        const message = document.getElementById('message');
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            
+            // 设置授权表单提交事件
+            setAuthorizationForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                saveAuthorization();
+            });
+            
+            // 搜索框回车事件
+            document.getElementById('searchInput').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    searchUser();
+                }
+            });
+            
+            // 定时刷新数据
+            setInterval(loadData, 30000); // 每30秒刷新一次
+        });
+        
+        // 加载所有数据
+        function loadData() {
+            Promise.all([loadUsersData(), loadSessionsData()])
+                .then(() => {
+                    renderUserTable(currentUsers);
+                })
+                .catch(error => {
+                    showMessage('加载数据失败: ' + error.message, 'error');
+                });
+        }
+        
+        // 加载用户列表
+        function loadUsersData() {
+            return fetch('/api/users')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentUsers = data.users;
+                    } else {
+                        throw new Error('获取用户列表失败: ' + data.message);
+                    }
+                });
+        }
+        
+        // 加载会话信息
+        function loadSessionsData() {
+            return fetch('/api/sessions')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('会话API完整响应:', data);
+                    if (data.success) {
+                        // 将会话数据按用户名存储
+                        currentSessions = {};
+                        console.log('获取到的会话数据:', JSON.stringify(data.sessions, null, 2));
+                        
+                        // 检查会话数据的结构
+                        if (data.sessions && Array.isArray(data.sessions)) {
+                            console.log(`会话数量: ${data.sessions.length}`);
+                            
+                            data.sessions.forEach(session => {
+                                // 输出完整的会话对象以检查字段名
+                                console.log(`会话对象详细信息:`, session);
+                                
+                                // 检查可能的用户名和状态字段
+                                const username = session.username || session.user || session.name || 'unknown';
+                                const state = session.state || session.status || session.sessionState || 'unknown';
+                                
+                                console.log(`会话信息 - 用户名(多种可能性): ${session.username || 'undefined'}, ${session.user || 'undefined'}, ${session.name || 'undefined'}`);
+                                console.log(`会话信息 - 状态(多种可能性): ${session.state || 'undefined'}, ${session.status || 'undefined'}, ${session.sessionState || 'undefined'}`);
+                                
+                                if (username !== 'unknown') {
+                                    if (!currentSessions[username]) {
+                                        currentSessions[username] = [];
+                                    }
+                                    // 保存原始会话对象
+                                    currentSessions[username].push(session);
+                                }
+                            });
+                        } else {
+                            console.error('会话数据格式不正确，sessions不是数组:', data.sessions);
+                        }
+                        console.log('处理后的会话数据:', currentSessions);
+                    } else {
+                        console.error('API返回失败:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.warn('获取会话信息失败，将显示为已注销状态:', error);
+                    currentSessions = {};
+                });
+        }
+        
+        // 渲染用户表格
+        function renderUserTable(users) {
+            userTableBody.innerHTML = '';
+            
+            if (users.length === 0) {
+                userTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">没有找到用户</td></tr>';
+                return;
+            }
+            
+            // 调试：输出当前会话数据概览
+            console.log('当前会话数据概览:', Object.keys(currentSessions).join(', '));
+            
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                
+                // 授权信息 - 即使授权被禁用，仍然显示日期
+                const authStart = user.authorization && user.authorization.startDate ? new Date(user.authorization.startDate).toLocaleString() : '-';
+                const authEnd = user.authorization && user.authorization.endDate ? new Date(user.authorization.endDate).toLocaleString() : '-';
+                
+                // 授权状态标签
+                let statusBadgeClass = 'status-badge';
+                let statusText = '-';
+
+                if (user.authorization) {
+                    if (user.authorization.metadata && user.authorization.metadata.disabled) {
+                        statusBadgeClass += ' disabled';
+                        statusText = '已禁用';
+                    } else if (user.isAuthorized) {
+                        statusBadgeClass += ' authorized';
+                        statusText = '已授权';
+                    } else {
+                        // 根据授权状态原因显示不同的样式和文本
+                        if (user.authorizationStatus === '授权时间未开始') {
+                            statusBadgeClass += ' not-started';
+                            statusText = '未开始';
+                        } else if (user.authorizationStatus === '授权时间已过期') {
+                            statusBadgeClass += ' unauthorized';
+                            statusText = '已到期';
+                        } else {
+                            statusBadgeClass += ' unauthorized';
+                            statusText = '未授权';
+                        }
+                    }
+                } else if (!user.disabled) {
+                    // 如果用户已启用且没有授权时间，则显示无限制
+                    statusBadgeClass += ' enabled';
+                    statusText = '无限制';
+                }
+                
+                // 当前用户状态
+                const currentStatusClass = user.disabled ? 'status-badge disabled' : 'status-badge enabled';
+                const currentStatusText = user.disabled ? '已禁用' : '已启用';
+                
+                // 在线状态 - 重置为默认值
+                let onlineStatusClass = 'status-badge logged-off';
+                let onlineStatusText = '已注销';
+                
+                console.log(`处理用户: ${user.name}`);
+                
+                // 检查当前会话数据中是否有匹配的用户
+                const userSessions = currentSessions[user.name];
+                console.log(`  用户会话存在: ${!!userSessions}, 会话数量: ${userSessions ? userSessions.length : 0}`);
+                
+                // 尝试查找可能的用户名变体匹配
+                let foundSessions = userSessions;
+                if (!foundSessions && Object.keys(currentSessions).length > 0) {
+                    console.log(`  尝试模糊匹配用户名变体`);
+                    // 尝试模糊匹配可能的用户名变体
+                    const possibleMatch = Object.keys(currentSessions).find(sessionUsername => 
+                        sessionUsername.toLowerCase() === user.name.toLowerCase() ||
+                        sessionUsername.includes(user.name) ||
+                        user.name.includes(sessionUsername)
+                    );
+                    
+                    if (possibleMatch) {
+                        foundSessions = currentSessions[possibleMatch];
+                        console.log(`  找到模糊匹配: '${possibleMatch}'`);
+                    }
+                }
+                
+                if (foundSessions && foundSessions.length > 0) {
+                    // 检查是否有活动会话 - 使用更宽松的匹配方式
+                    const hasActiveSession = foundSessions.some(session => {
+                        // 检查所有可能的状态字段
+                        const stateField = session.state || session.status || session.sessionState || '';
+                        const safeState = String(stateField).toLowerCase();
+                        
+                        console.log(`  检查会话状态: ${stateField}, 转换后: '${safeState}'`);
+                        
+                        const isActive = safeState.includes('active') || 
+                                       safeState.includes('活动') || 
+                                       safeState.includes('已登录') || 
+                                       safeState.includes('online') ||
+                                       safeState.includes('连接') ||
+                                       safeState.includes('connected');
+                        
+                        return isActive;
+                    });
+                    
+                    if (hasActiveSession) {
+                        onlineStatusClass = 'status-badge logged-in';
+                        onlineStatusText = '已登录';
+                        console.log(`  用户设置为: 已登录`);
+                    } else {
+                        // 检查是否有断开的会话
+                        const hasDisconnectedSession = foundSessions.some(session => {
+                            const stateField = session.state || session.status || session.sessionState || '';
+                            const safeState = String(stateField).toLowerCase();
+                            
+                            return safeState.includes('disconnected') || 
+                                   safeState.includes('断开') || 
+                                   safeState.includes('offline');
+                        });
+                        
+                        if (hasDisconnectedSession) {
+                            onlineStatusClass = 'status-badge offline';
+                            onlineStatusText = '已断开';
+                            console.log(`  用户设置为: 已断开`);
+                        }
+                        // 否则保持默认的已注销状态
+                    }
+                }
+                
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td><span class="${currentStatusClass}">${currentStatusText}</span></td>
+                    <td>${authStart}</td>
+                    <td>${authEnd}</td>
+                    <td><span class="${statusBadgeClass}">${statusText}</span></td>
+                    <td><span class="${onlineStatusClass}">${onlineStatusText}</span></td>
+                    <td>
+                        <button class="btn small primary" onclick="openAuthorizationModal('${user.name}')">设置授权</button>
+                        <button class="btn small ${user.disabled ? 'success' : 'danger'}" onclick="toggleUserStatus('${user.name}')">${user.disabled ? '启用用户' : '禁用用户'}</button>
+                    </td>
+                `;
+                
+                userTableBody.appendChild(row);
+            });
+        }
+        
+        // 搜索用户
+        function searchUser() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filteredUsers = currentUsers.filter(user => 
+                user.name.toLowerCase().includes(searchTerm)
+            );
+            
+            renderUserTable(filteredUsers);
+        }
+        
+        // 打开授权模态框
+        function openAuthorizationModal(username) {
+            selectedUsername = username;
+            usernameInput.value = username;
+            
+            // 查找用户当前授权信息
+            const user = currentUsers.find(u => u.name === username);
+            if (user && user.authorization) {
+                // 格式化日期时间为datetime-local输入格式
+                const startDate = formatDateForInput(new Date(user.authorization.startDate));
+                const endDate = formatDateForInput(new Date(user.authorization.endDate));
+                document.getElementById('startDateInput').value = startDate;
+                document.getElementById('endDateInput').value = endDate;
+            } else {
+                // 默认设置为当前时间和一周后
+                const now = new Date();
+                const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                document.getElementById('startDateInput').value = formatDateForInput(now);
+                document.getElementById('endDateInput').value = formatDateForInput(weekLater);
+            }
+            
+            authorizationModal.style.display = 'block';
+            // 触发重排后添加动画类
+            setTimeout(() => {
+                authorizationModal.classList.add('show');
+            }, 10);
+        }
+        
+        // 关闭授权模态框
+        function closeAuthorizationModal() {
+            authorizationModal.classList.remove('show');
+            // 等待动画完成后隐藏
+            setTimeout(() => {
+                authorizationModal.style.display = 'none';
+                selectedUsername = '';
+                setAuthorizationForm.reset();
+            }, 300);
+        }
+        
+        // 保存授权信息
+        function saveAuthorization() {
+            const startDate = document.getElementById('startDateInput').value;
+            const endDate = document.getElementById('endDateInput').value;
+            
+            // 验证日期
+            if (new Date(startDate) > new Date(endDate)) {
+                showMessage('开始时间不能晚于结束时间', 'error');
+                return;
+            }
+            
+            loading.classList.add('show');
+            
+            fetch('/api/users/set-authorization', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: selectedUsername,
+                    startDate: startDate,
+                    endDate: endDate
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.classList.remove('show');
+                
+                if (data.success) {
+                    showMessage('授权设置成功', 'success');
+                    closeAuthorizationModal();
+                    loadData(); // 使用正确的函数加载所有数据
+                } else {
+                    showMessage('授权设置失败: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                loading.classList.remove('show');
+                showMessage('保存授权时发生错误: ' + error.message, 'error');
+            });
+        }
+        
+        // 切换用户状态
+        function toggleUserStatus(username) {
+            // 查找用户当前授权信息
+            const user = currentUsers.find(u => u.name === username);
+            const isUserDisabled = user.disabled;
+            const action = isUserDisabled ? '启用' : '禁用';
+            
+            if (confirm(`确定要${action}用户 ${username} 吗？`)) {
+                loading.classList.add('show');
+                
+                // 使用系统统一的用户状态管理API
+                fetch('/api/users/set-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        disabled: !isUserDisabled
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loading.classList.remove('show');
+                    
+                    if (data.success) {
+                        showMessage(data.message || '用户已成功' + action, 'success');
+                        loadData(); // 使用正确的函数加载所有数据
+                    } else {
+                        showMessage(action + '用户失败: ' + (data.message || '未知错误'), 'error');
+                    }
+                })
+                .catch(error => {
+                    loading.classList.remove('show');
+                    showMessage(action + '授权时发生错误: ' + error.message, 'error');
+                });
+            }
+        }
+        
+        // 格式化日期为datetime-local输入格式
+        function formatDateForInput(date) {
+            // 解决时区问题，确保本地时间正确显示
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+        
+        // 显示消息提示
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = `message ${type} show`;
+            
+            setTimeout(() => {
+                message.className = 'message';
+            }, 3000);
+        }
+        
+        // 点击模态框外部关闭模态框
+        window.addEventListener('click', function(event) {
+            if (event.target === authorizationModal) {
+                closeAuthorizationModal();
+            }
+        });
+    </script>
+</body>
+</html>

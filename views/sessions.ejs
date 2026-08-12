@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会话管理 - 远程修改服务器用户密码资源管理系统</title>
+    <link rel="stylesheet" href="/css/style.css">
+<style>
+  /* 导航栏样式 - 内联以确保优先级 */
+  .navbar {
+    background-color: #2c3e50 !important;
+    color: white !important;
+    padding: 15px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  
+  .navbar .container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+  }
+  
+  .navbar .logo {
+    font-size: 1.5em !important;
+    font-weight: bold !important;
+    color: white !important;
+    text-decoration: none !important;
+  }
+  
+  .navbar .nav-links {
+    display: flex !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .navbar .nav-links li {
+    margin-left: 10px !important;
+  }
+  
+  .navbar .nav-links a {
+    color: white !important;
+    text-decoration: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    transition: background-color 0.3s !important;
+  }
+  
+  .navbar .nav-links a:hover {
+    background-color: #34495e !important;
+  }
+  
+  .navbar .nav-links a.active {
+    background-color: #3498db !important;
+  }
+  
+  .navbar .nav-links button {
+    background-color: #e74c3c !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s !important;
+  }
+  
+  .navbar .nav-links button:hover {
+    background-color: #c0392b !important;
+  }
+  
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .navbar .container {
+      flex-direction: column !important;
+    }
+    
+    .navbar .nav-links {
+      margin-top: 10px !important;
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+    }
+    
+    .navbar .nav-links li {
+      margin: 5px !important;
+    }
+  }
+</style>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1, h2, h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        /* 导航栏样式已在全局CSS中定义 */
+        
+        /* 导航栏链接样式已在全局CSS中定义 */
+        
+        /* 功能卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* 按钮样式 - 采用security页面风格 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            margin: 2px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn.primary {
+            background-color: #3498db !important;
+            color: white !important;
+        }
+        
+        .btn.primary:hover {
+            background-color: #2980b9 !important;
+        }
+        
+        .btn.success {
+            background-color: #2ecc71 !important;
+            color: white !important;
+        }
+
+        .btn.success:hover {
+            background-color: #27ae60 !important;
+        }
+        
+        .btn.warning {
+            background-color: #f39c12 !important;
+            color: white !important;
+        }
+        
+        .btn.warning:hover {
+            background-color: #e67e22 !important;
+        }
+        
+        .btn.danger {
+            background-color: #e74c3c !important;
+            color: white !important;
+        }
+        
+        .btn.danger:hover {
+            background-color: #c0392b !important;
+        }
+        
+        .btn.secondary {
+            background-color: #95a5a6 !important;
+            color: white !important;
+        }
+        
+        .btn.secondary:hover {
+            background-color: #7f8c8d !important;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6 !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* 表格样式 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        /* 确保模态框默认隐藏 */
+        #disconnectModal, #logoffModal, #messageModal {
+            display: none !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-color: rgba(0, 0, 0, 0.5) !important;
+            z-index: 1000 !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+        
+        /* 确保显示状态生效 */
+        #disconnectModal.show, #logoffModal.show, #messageModal.show {
+            display: flex !important;
+        }
+        
+        /* 模态框内容样式 */
+        .modal-content {
+            background-color: white !important;
+            padding: 30px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+            width: 90% !important;
+            max-width: 500px !important;
+            max-height: 80vh !important;
+            overflow-y: auto !important;
+        }
+        
+        /* 模态框标题样式 */
+        .modal-content h3 {
+            margin-top: 0 !important;
+            color: #333 !important;
+            font-size: 20px !important;
+            margin-bottom: 20px !important;
+        }
+        
+        /* 模态框文本样式 */
+        .modal-content p {
+            margin: 10px 0 !important;
+            color: #555 !important;
+            line-height: 1.6 !important;
+        }
+        
+        /* 模态框底部按钮容器 */
+        .modal-footer {
+            display: flex !important;
+            justify-content: flex-end !important;
+            gap: 12px !important;
+            margin-top: 25px !important;
+            padding-top: 20px !important;
+            border-top: 1px solid #e9ecef !important;
+        }
+        
+        /* 消息文本域样式 */
+        #messageContent {
+            width: 100% !important;
+            height: 120px !important;
+            padding: 12px !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 4px !important;
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+            resize: vertical !important;
+            min-height: 100px !important;
+            max-height: 300px !important;
+        }
+        
+        #messageContent:focus {
+            outline: none !important;
+            border-color: #3498db !important;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25) !important;
+        }
+        
+        /* 表单组样式 */
+        .form-group {
+            margin: 15px 0 !important;
+        }
+        
+        .form-group label {
+            display: block !important;
+            margin-bottom: 8px !important;
+            font-weight: 500 !important;
+            color: #495057 !important;
+        }
+        
+        /* 会话状态样式 */
+        .state-active {
+            color: #28a745 !important;
+            font-weight: bold !important;
+        }
+        
+        .state-disconnected {
+            color: #dc3545 !important;
+            font-weight: bold !important;
+        }
+        
+        .state-idle {
+            color: #ffc107 !important;
+            font-weight: bold !important;
+        }
+        
+        /* 消息提示样式 - 中间上方气泡提示 */
+        .message {
+            position: fixed !important;
+            top: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            background-color: #3498db !important;
+            color: white !important;
+            padding: 12px 24px !important;
+            border-radius: 4px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            z-index: 2000 !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+            opacity: 0 !important;
+            transition: opacity 0.3s ease, transform 0.3s ease !important;
+            transform: translate(-50%, -20px) !important;
+            animation: slideDownIn 0.3s ease forwards !important;
+        }
+        
+        /* 消息滑入动画 */
+        @keyframes slideDownIn {
+            to {
+                opacity: 1 !important;
+                transform: translateX(-50%) !important;
+            }
+        }
+        
+        /* 消息淡出动画 */
+        .message.fade-out {
+            opacity: 0 !important;
+            transform: translate(-50%, -20px) !important;
+        }
+        
+        /* 不同类型消息的样式 */
+        .message.info {
+            background-color: #3498db !important;
+        }
+        
+        .message.success {
+            background-color: #2ecc71 !important;
+        }
+        
+        .message.error {
+            background-color: #e74c3c !important;
+        }
+        
+        .message.warning {
+            background-color: #f39c12 !important;
+        }
+        
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .navbar .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .navbar .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 0;
+            }
+            
+            .navbar .nav-links li {
+                margin: 5px;
+            }
+            
+            .navbar .nav-links a {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                border-radius: 8px;
+            }
+            
+            .table th, .table td {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+                margin: 5px 0;
+                width: 100%;
+            }
+            
+            .modal-content {
+                width: 90% !important;
+                max-width: 500px;
+                margin: 20% auto;
+                padding: 20px !important;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .form-group label {
+                margin-bottom: 5px;
+                font-size: 14px;
+            }
+            
+            .form-group input,
+            .form-group select,
+            #messageContent {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 5px;
+            }
+            
+            .pagination button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">远程服务器登录管理系统V2.0</div>
+            <ul class="nav-links">
+                <li><a href="/">首页</a></li>
+                <li><a href="/users">账号管理</a></li>
+                <li><a href="/authorization">用户管理</a></li>
+                <li><a href="/sessions" class="active">会话管理</a></li>
+                <li><a href="/security">安全操作</a></li>
+                <li><a href="/admin-management">系统管理</a></li>
+
+                <li><a href="/logout" class="btn danger">退出登录</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="card">
+            <h1>会话管理</h1>
+            <p>查看当前活动会话、强制用户下线</p>
+            
+            <div class="operation-bar">
+                <button id="refreshSessions" class="btn primary">刷新会话列表</button>
+            </div>
+            
+            <div id="sessionsContainer">
+                <div class="loading">正在加载会话信息...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 断开连接确认对话框 -->
+    <div id="disconnectModal" class="modal">
+        <div class="modal-content">
+            <h3>确认断开连接</h3>
+            <p>您确定要断开该用户的连接吗？</p>
+            <p>此操作不会注销用户的应用程序，用户可以重新连接到会话。</p>
+            <p><strong>用户名：</strong><span id="disconnectUsername"></span></p>
+            <div class="modal-footer">
+                <button id="cancelDisconnect" class="btn secondary">取消</button>
+                <button id="confirmDisconnect" class="btn warning">确认断开</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 下线确认对话框 -->
+    <div id="logoffModal" class="modal">
+        <div class="modal-content">
+            <h3>确认下线</h3>
+            <p>您确定要强制下线该用户会话吗？</p>
+            <p><strong>用户名：</strong><span id="logoffUsername"></span></p>
+            <div class="modal-footer">
+                <button id="cancelLogoff" class="btn secondary">取消</button>
+                <button id="confirmLogoff" class="btn danger">确认下线</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 发送消息对话框 -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <h3>发送消息</h3>
+            <p><strong>用户名：</strong><span id="messageUsername"></span></p>
+            <div class="form-group">
+                <label for="messageContent">消息内容：</label>
+                <textarea id="messageContent" rows="4" placeholder="请输入要发送的消息"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelMessage" class="btn secondary">取消</button>
+                <button id="confirmMessage" class="btn success">发送消息</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 当前待操作的会话ID
+        let currentSessionId = null;
+        let currentDisconnectSessionId = null;
+        let currentMessageSessionId = null;
+        
+        // 定时刷新间隔（毫秒）
+        const AUTO_REFRESH_INTERVAL = 30000; // 30秒
+        let refreshInterval;
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始加载会话列表
+            loadSessions();
+            
+            // 刷新按钮事件
+            document.getElementById('refreshSessions').addEventListener('click', function() {
+                loadSessions();
+            });
+            
+            // 下线确认按钮事件
+            document.getElementById('confirmLogoff').addEventListener('click', function() {
+                if (currentSessionId) {
+                    sessionLogoffUser(currentSessionId);
+                }
+            });
+            
+            // 取消下线按钮事件
+            document.getElementById('cancelLogoff').addEventListener('click', function() {
+                closeLogoffModal();
+            });
+            
+            // 断开连接确认按钮事件
+            document.getElementById('confirmDisconnect').addEventListener('click', function() {
+                if (currentDisconnectSessionId) {
+                    sessionDisconnectUser(currentDisconnectSessionId);
+                }
+            });
+            
+            // 取消断开连接按钮事件
+            document.getElementById('cancelDisconnect').addEventListener('click', function() {
+                closeDisconnectModal();
+            });
+            
+            // 移除自动刷新，只在页面加载和手动刷新时获取会话信息
+            // startAutoRefresh(); // 已禁用自动刷新
+            
+            // 显示页面加载提示
+            showMessage('页面已加载，正在获取会话信息...', 'info');
+            
+            // 页面离开时清除定时器
+            window.addEventListener('beforeunload', stopAutoRefresh);
+
+            // 发送消息确认按钮事件
+            document.getElementById('confirmMessage').addEventListener('click', function() {
+                if (currentMessageSessionId) {
+                    sendMessageToUser(currentMessageSessionId);
+                }
+            });
+
+            // 取消发送消息按钮事件
+            document.getElementById('cancelMessage').addEventListener('click', function() {
+                closeMessageModal();
+            });
+        });
+        
+        // 启动自动刷新
+        function startAutoRefresh() {
+            // 清除可能存在的定时器，避免重复设置
+            stopAutoRefresh();
+            
+            // 设置新的定时器
+            refreshInterval = setInterval(function() {
+                console.log('自动刷新会话列表...');
+                loadSessions();
+            }, AUTO_REFRESH_INTERVAL);
+        }
+        
+        // 停止自动刷新
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        }
+        
+        // 加载会话信息
+        function loadSessions() {
+            const container = document.getElementById('sessionsContainer');
+            const refreshBtn = document.getElementById('refreshSessions');
+            
+            // 禁用刷新按钮，避免重复请求
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<i class="loading-icon"></i> 加载中...';
+            container.innerHTML = '<div class="loading">正在加载会话信息，请稍候...</div>';
+            
+            fetch('/api/sessions')
+                .then(response => {
+                    // 检查响应状态
+                    if (!response.ok) {
+                        throw new Error(`HTTP错误: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('会话数据获取成功:', data);
+                    
+                    if (data.success) {
+                        // 添加调试信息显示
+                        let debugInfo = '';
+                        if (data.debugInfo && data.debugInfo.message) {
+                            debugInfo = `<div class="debug-info">${data.debugInfo.message}</div>`;
+                        }
+                        
+                        if (data.sessions.length === 0) {
+                            container.innerHTML = `
+                                ${debugInfo}
+                                <div class="empty-state">
+                                    <h4>当前没有检测到活动会话</h4>
+                                    <p>如果您确认有客户端已连接，请尝试以下操作：</p>
+                                    <ul>
+                                        <li>检查服务器上的实际连接情况</li>
+                                        <li>确保应用以管理员权限运行</li>
+                                        <li>点击刷新按钮重试</li>
+                                    </ul>
+                                    <button class="btn" onclick="loadSessions()">重新尝试</button>
+                                </div>
+                            `;
+                        } else {
+                            // 生成会话表格
+                            let html = `
+                                ${debugInfo}
+                                <div class="session-stats">共 ${data.sessions.length} 个活动会话</div>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>会话ID</th>
+                                            <th>用户名</th>
+                                            <th>状态</th>
+                                            <th>登录时间</th>
+                                            <th>在线时长</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                            `;
+                            
+                            data.sessions.forEach(session => {
+                                // 确保所有必要字段都有值
+                                const safeSessionId = session.sessionId || '未知';
+                                const safeUsername = session.username || '未知';
+                                const safeState = session.state || '未知';
+                                const safeLoginTime = session.loginTime || '未知';
+                                const safeDuration = session.duration || '未知';
+                                
+                                // 添加状态样式
+                                let stateClass = '';
+                                if (safeState.includes('活动')) stateClass = 'state-active';
+                                else if (safeState.includes('断开')) stateClass = 'state-disconnected';
+                                else if (safeState.includes('空闲')) stateClass = 'state-idle';
+                                
+                                html += `
+                                    <tr>
+                                        <td>${safeSessionId}</td>
+                                        <td>${safeUsername}</td>
+                                        <td class="${stateClass}">${safeState}</td>
+                                        <td>${safeLoginTime}</td>
+                                        <td>${safeDuration}</td>
+                                        <td>
+                    <button class="btn warning" onclick="confirmDisconnect('${safeSessionId}', '${safeUsername}')">断开连接</button>
+                    <button class="btn danger" onclick="confirmLogoff('${safeSessionId}', '${safeUsername}')">强制下线</button>
+                    <button class="btn success" onclick="confirmSendMessage('${safeSessionId}', '${safeUsername}')">发送消息</button>
+                </td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            html += '</tbody></table>';
+                            container.innerHTML = html;
+                        }
+                    } else {
+                        // 显示详细错误信息
+                        let errorDetails = data.message || '未知错误';
+                        if (data.debugInfo && data.debugInfo.message) {
+                            errorDetails += `<br>${data.debugInfo.message}`;
+                        }
+                        
+                        container.innerHTML = `
+                            <div class="error">
+                                <h4>加载失败</h4>
+                                <p>${errorDetails}</p>
+                                <button class="btn" onclick="loadSessions()">重试</button>
+                            </div>
+                        `;
+                        showMessage('会话列表加载失败，请稍后重试', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('加载会话时出错:', error);
+                    container.innerHTML = `
+                        <div class="error">
+                            <h4>加载失败</h4>
+                            <p>网络错误或服务器连接问题</p>
+                            <p>详细信息: ${error.message}</p>
+                            <button class="btn" onclick="loadSessions()">重新连接</button>
+                        </div>
+                    `;
+                    showMessage('网络错误，请检查连接后重试', 'error');
+                })
+                .finally(() => {
+                    // 恢复刷新按钮状态
+                    refreshBtn.disabled = false;
+                    refreshBtn.innerHTML = '刷新会话列表';
+                });
+        }
+        
+        // 确认断开连接
+        function confirmDisconnect(sessionId, username) {
+            currentDisconnectSessionId = sessionId;
+            document.getElementById('disconnectUsername').textContent = username;
+            document.getElementById('disconnectModal').classList.add('show');
+        }
+        
+        // 关闭断开连接确认对话框
+        function closeDisconnectModal() {
+            currentDisconnectSessionId = null;
+            const modal = document.getElementById('disconnectModal');
+            modal.classList.remove('show');
+            
+            // 恢复按钮状态
+            const confirmBtn = document.getElementById('confirmDisconnect');
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = '确认断开';
+        }
+        
+        // 确认下线
+        function confirmLogoff(sessionId, username) {
+            currentSessionId = sessionId;
+            document.getElementById('logoffUsername').textContent = username;
+            document.getElementById('logoffModal').classList.add('show');
+        }
+        
+        // 关闭下线确认对话框
+        function closeLogoffModal() {
+            currentSessionId = null;
+            const modal = document.getElementById('logoffModal');
+            modal.classList.remove('show');
+            
+            // 恢复按钮状态
+            const confirmBtn = document.getElementById('confirmLogoff');
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = '确认下线';
+        }
+
+        // 确认发送消息
+        function confirmSendMessage(sessionId, username) {
+            currentMessageSessionId = sessionId;
+            document.getElementById('messageUsername').textContent = username;
+            document.getElementById('messageContent').value = ''; // 清空消息内容
+            document.getElementById('messageModal').classList.add('show');
+        }
+
+        // 关闭发送消息对话框
+        function closeMessageModal() {
+            currentMessageSessionId = null;
+            const modal = document.getElementById('messageModal');
+            modal.classList.remove('show');
+            
+            // 恢复按钮状态
+            const confirmBtn = document.getElementById('confirmMessage');
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = '发送消息';
+        }
+        
+        // 断开用户连接
+        function sessionDisconnectUser(sessionId) {
+            const confirmBtn = document.getElementById('confirmDisconnect');
+            // 禁用确认按钮，避免重复提交
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = '处理中...';
+
+            fetch(`/api/disconnect/${sessionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                // 检查响应状态
+                if (!response.ok) {
+                    throw new Error(`HTTP错误: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                closeDisconnectModal();
+                if (data.success) {
+                    showMessage('用户连接已成功断开，但应用程序仍在运行', 'success');
+                    // 立即刷新会话列表，确保用户看到最新状态
+                    loadSessions();
+                } else {
+                    showMessage('断开连接失败：' + (data.message || '未知错误'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('断开连接时出错:', error);
+                closeDisconnectModal();
+                showMessage('断开连接失败，请检查会话ID是否正确', 'error');
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '确认断开';
+            });
+        }
+
+        // 下线用户
+        function sessionLogoffUser(sessionId) {
+            const confirmBtn = document.getElementById('confirmLogoff');
+            // 禁用确认按钮，避免重复提交
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = '处理中...';
+            
+            fetch(`/api/logoff/${sessionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                // 检查响应状态
+                if (!response.ok) {
+                    throw new Error(`HTTP错误: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                closeLogoffModal();
+                if (data.success) {
+                    showMessage('用户已成功下线', 'success');
+                    // 立即刷新会话列表，确保用户看到最新状态
+                    loadSessions();
+                } else {
+                    showMessage('下线失败：' + (data.message || '未知错误'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('强制下线时出错:', error);
+                closeLogoffModal();
+                showMessage('强制下线失败，请检查会话ID是否正确', 'error');
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '确认下线';
+            });
+        }
+        
+        // 发送消息给用户
+        function sendMessageToUser(sessionId) {
+            const confirmBtn = document.getElementById('confirmMessage');
+            const messageContent = document.getElementById('messageContent').value.trim();
+            
+            // 验证消息内容
+            if (!messageContent) {
+                showMessage('请输入消息内容', 'error');
+                return;
+            }
+            
+            // 禁用确认按钮，避免重复提交
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = '发送中...';
+
+            fetch(`/api/send-message/${sessionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: messageContent })
+            })
+            .then(response => {
+                // 确保无论状态如何都解析JSON，这样可以获取服务器返回的错误信息
+                return response.json().then(data => {
+                    if (!response.ok) {
+                        // 即使状态码不是2xx，也从数据中获取错误信息
+                        throw new Error(data.message || `HTTP错误: ${response.status}`);
+                    }
+                    return data;
+                });
+            })
+            .then(data => {
+                closeMessageModal();
+                if (data.success) {
+                    showMessage('消息发送成功', 'success');
+                } else {
+                    // 显示服务器返回的具体错误信息
+                    showMessage('消息发送失败：' + (data.message || '未知错误'), 'error');
+                    console.log('服务器返回的错误信息:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('发送消息时出错:', error);
+                closeMessageModal();
+                // 显示更详细的错误信息给用户
+                showMessage('消息发送失败：' + error.message, 'error');
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '发送消息';
+            });
+        }
+
+        // 显示消息
+        function showMessage(message, type = 'info') {
+            // 移除所有现有的消息，避免消息堆积
+            const existingMessages = document.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            // 创建消息元素
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+            msgDiv.textContent = message;
+            
+            // 添加到页面
+            document.body.appendChild(msgDiv);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                msgDiv.classList.add('fade-out');
+                setTimeout(() => {
+                    if (msgDiv.parentNode) {
+                        document.body.removeChild(msgDiv);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

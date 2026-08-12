@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全操作 - 远程服务器登录管理系统V2.0</title>
+    <link rel="stylesheet" href="/css/style.css">
+<style>
+  /* 导航栏样式 - 内联以确保优先级 */
+  .navbar {
+    background-color: #2c3e50 !important;
+    color: white !important;
+    padding: 15px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  
+  .navbar .container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+  }
+  
+  .navbar .logo {
+    font-size: 1.5em !important;
+    font-weight: bold !important;
+    color: white !important;
+    text-decoration: none !important;
+  }
+  
+  .navbar .nav-links {
+    display: flex !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .navbar .nav-links li {
+    margin-left: 10px !important;
+  }
+  
+  .navbar .nav-links a {
+    color: white !important;
+    text-decoration: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    transition: background-color 0.3s !important;
+  }
+  
+  .navbar .nav-links a:hover {
+    background-color: #34495e !important;
+  }
+  
+  .navbar .nav-links a.active {
+    background-color: #3498db !important;
+  }
+  
+  .navbar .nav-links button {
+    background-color: #e74c3c !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s !important;
+  }
+  
+  .navbar .nav-links button:hover {
+    background-color: #c0392b !important;
+  }
+  
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .navbar .container {
+      flex-direction: column !important;
+    }
+    
+    .navbar .nav-links {
+      margin-top: 10px !important;
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+    }
+    
+    .navbar .nav-links li {
+      margin: 5px !important;
+    }
+  }
+</style>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 全局样式 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1, h2, h3, h4 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            color: #555;
+        }
+        
+        /* 导航栏样式已在全局CSS中定义 */
+        
+        /* 退出登录按钮样式已在全局CSS中定义 */
+        
+        /* 主卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .card-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .card-header p {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        /* 安全功能网格布局 */
+        .security-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        /* 安全卡片样式 */
+        .security-card {
+            background-color: #fafbfc;
+            border: 1px solid #e1e4e8;
+            border-radius: 10px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .security-card:hover {
+            background-color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transform: translateY(-3px);
+        }
+        
+        .security-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+        }
+        
+        .security-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .security-card h3 i {
+            font-size: 20px;
+            color: #3498db;
+        }
+        
+        .security-card p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn.primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn.primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn.success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn.success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn.warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn.warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn.danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn.danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn.secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .btn.secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* 表格样式 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tr {
+            transition: background-color 0.2s ease;
+        }
+        
+        .table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table td.success {
+            color: #27ae60;
+            font-weight: 500;
+        }
+        
+        .table td.error {
+            color: #e74c3c;
+            font-weight: 500;
+        }
+        
+        /* 间隔设置样式 */
+        .interval-setting {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e1e4e8;
+        }
+        
+        .interval-input {
+            width: 100px;
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: border-color 0.3s ease;
+        }
+        
+        .interval-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .interval-unit {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        /* 消息样式 */
+        .message {
+            margin-top: 15px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+            border-color: #c3e6cb;
+            display: block;
+        }
+        
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+            border-color: #f5c6cb;
+            display: block;
+        }
+        
+        .message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-left-color: #17a2b8;
+            border-color: #bee5eb;
+            display: block;
+        }
+        
+        .message.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+            border-color: #ffeaa7;
+            display: block;
+        }
+        
+        /* 结果容器样式 */
+        .results-container {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e1e4e8;
+            min-height: 200px;
+        }
+        
+        .results-container h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            display: inline-block;
+        }
+        
+        .security-report {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .security-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        .security-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .security-section h4 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .security-section h4 i {
+            color: #3498db;
+        }
+        
+        .security-section ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        
+        .security-section li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .security-section li:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* 加载状态 */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 40px;
+            color: #3498db;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 状态消息样式 */
+        .success-message {
+            padding: 15px 20px;
+            background-color: #d4edda;
+            color: #155724;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .warning-message {
+            padding: 15px 20px;
+            background-color: #fff3cd;
+            color: #856404;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .error-message {
+            padding: 15px 20px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .navbar .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .navbar .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .security-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .interval-setting {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .interval-input {
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .security-card,
+        .security-section {
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        /* 工具提示 */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">远程服务器登录管理系统V2.0</div>
+            <ul class="nav-links">
+                <li><a href="/">首页</a></li>
+                <li><a href="/users">账号管理</a></li>
+                <li><a href="/authorization">用户管理</a></li>
+                <li><a href="/sessions">会话管理</a></li>
+                <li><a href="/security" class="active">安全操作</a></li>
+                <li><a href="/admin-management">系统管理</a></li>
+
+                <li><a href="/logout" class="btn danger">退出登录</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="card">
+            <!-- 卡片头部 -->
+            <div class="card-header">
+                <h1><i class="fas fa-shield-alt"></i> 安全操作中心</h1>
+                <p>全面保护您的服务器安全，执行各项安全管理操作</p>
+            </div>
+            
+            <!-- 安全功能网格 -->
+            <div class="security-features">
+                <div class="security-card">
+                    <h3><i class="fas fa-user-shield"></i> 账户安全检查</h3>
+                    <p>全面检查系统账户状态，识别潜在安全风险，保护管理员权限安全</p>
+                    <button id="checkAccountSecurity" class="btn primary">
+                        <i class="fas fa-search"></i> 执行检查
+                    </button>
+                </div>
+                
+                <div class="security-card">
+                    <h3><i class="fas fa-key"></i> 管理员权限验证</h3>
+                    <p>验证当前运行环境的权限级别，确保系统以正确权限运行</p>
+                    <button id="verifyAdmin" class="btn success">
+                        <i class="fas fa-check-circle"></i> 验证权限
+                    </button>
+                </div>
+                
+                <div class="security-card">
+                    <h3><i class="fas fa-history"></i> 操作日志查看</h3>
+                    <p>查看详细的系统操作记录，追踪所有管理活动历史</p>
+                    <button id="viewLogs" class="btn warning">
+                        <i class="fas fa-file-alt"></i> 查看日志
+                    </button>
+                </div>
+                
+                <div class="security-card">
+                    <h3><i class="fas fa-clock"></i> 授权检查间隔设置</h3>
+                    <p>自定义系统检查授权过期的时间频率，确保及时发现授权问题</p>
+                    <div class="interval-setting">
+                        <input type="number" id="checkInterval" min="1" max="120" value="10" class="interval-input" placeholder="分钟">
+                        <span class="interval-unit">分钟</span>
+                        <button id="saveInterval" class="btn primary">
+                            <i class="fas fa-save"></i> 保存设置
+                        </button>
+                    </div>
+                    <div id="intervalMessage" class="message"></div>
+                </div>
+                
+                <div class="security-card">
+                    <h3><i class="fas fa-user-clock"></i> 登录会话有效期设置</h3>
+                    <p>自定义登录会话的过期时间，控制用户登录后保持登录状态的时长</p>
+                    <div class="interval-setting">
+                        <input type="number" id="sessionTimeout" min="1" max="240" value="60" class="interval-input" placeholder="分钟">
+                        <span class="interval-unit">分钟</span>
+                        <button id="saveSessionTimeout" class="btn primary">
+                            <i class="fas fa-save"></i> 保存设置
+                        </button>
+                    </div>
+                    <div id="sessionTimeoutMessage" class="message"></div>
+                </div>
+            </div>
+            
+            <!-- 结果显示区域 -->
+            <div id="securityResults" class="results-container">
+                <!-- 结果将在这里动态显示 -->
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <i class="fas fa-info-circle" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+                    <p>请选择上方的安全功能执行操作</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 绑定按钮事件
+            document.getElementById('checkAccountSecurity').addEventListener('click', checkAccountSecurity);
+            document.getElementById('verifyAdmin').addEventListener('click', verifyAdmin);
+            document.getElementById('viewLogs').addEventListener('click', viewLogs);
+            document.getElementById('saveInterval').addEventListener('click', saveCheckInterval);
+            document.getElementById('saveSessionTimeout').addEventListener('click', saveSessionTimeout);
+            
+            // 加载当前的设置
+            loadCurrentCheckInterval();
+            loadCurrentSessionTimeout();
+        });
+        
+        // 加载当前的检查间隔设置
+        function loadCurrentCheckInterval() {
+            fetch('/api/settings/authorization-interval')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('checkInterval').value = data.interval;
+                    }
+                })
+                .catch(error => {
+                    console.error('加载检查间隔失败:', error);
+                });
+        }
+        
+        // 加载当前的会话超时设置
+        function loadCurrentSessionTimeout() {
+            fetch('/api/settings/session-timeout')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('sessionTimeout').value = data.timeout;
+                    }
+                })
+                .catch(error => {
+                    console.error('加载会话超时设置失败:', error);
+                });
+        }
+        
+        // 保存检查间隔设置
+        function saveCheckInterval() {
+            const intervalInput = document.getElementById('checkInterval');
+            const messageDiv = document.getElementById('intervalMessage');
+            const interval = parseInt(intervalInput.value);
+            
+            // 验证输入
+            if (isNaN(interval) || interval < 1 || interval > 120) {
+                messageDiv.textContent = '请输入1-120之间的整数';
+                messageDiv.className = 'message error';
+                return;
+            }
+            
+            // 显示保存中状态
+            const saveButton = document.getElementById('saveInterval');
+            const originalText = saveButton.textContent;
+            saveButton.disabled = true;
+            saveButton.textContent = '保存中...';
+            messageDiv.className = 'message';
+        }
+        
+        // 保存会话超时设置
+        function saveSessionTimeout() {
+            const timeoutInput = document.getElementById('sessionTimeout');
+            const messageDiv = document.getElementById('sessionTimeoutMessage');
+            const timeout = parseInt(timeoutInput.value);
+            
+            // 验证输入
+            if (isNaN(timeout) || timeout < 1 || timeout > 240) {
+                messageDiv.textContent = '请输入1-240之间的整数';
+                messageDiv.className = 'message error';
+                return;
+            }
+            
+            // 显示保存中状态
+            const saveButton = document.getElementById('saveSessionTimeout');
+            const originalText = saveButton.textContent;
+            saveButton.disabled = true;
+            saveButton.textContent = '保存中...';
+            messageDiv.className = 'message';
+            
+            // 发送请求保存设置
+            fetch('/api/settings/session-timeout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ timeout })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.textContent = '设置已保存，系统将使用新的会话超时时间';
+                    messageDiv.className = 'message success';
+                } else {
+                    messageDiv.textContent = `保存失败: ${data.error || '未知错误'}`;
+                    messageDiv.className = 'message error';
+                }
+            })
+            .catch(error => {
+                console.error('保存会话超时设置失败:', error);
+                messageDiv.textContent = '保存失败，请稍后重试';
+                messageDiv.className = 'message error';
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                saveButton.disabled = false;
+                saveButton.textContent = originalText;
+                
+                // 3秒后隐藏消息
+                setTimeout(() => {
+                    messageDiv.className = 'message';
+                }, 3000);
+            });
+        }
+        
+        // 检查账户安全
+        function checkAccountSecurity() {
+            const resultsContainer = document.getElementById('securityResults');
+            resultsContainer.innerHTML = '<div class="loading">正在执行账户安全检查...</div>';
+            
+            fetch('/api/security/check-accounts')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = '<h3><i class="fas fa-shield-alt"></i> 账户安全检查结果</h3>';
+                        html += '<div class="security-report">';
+                        
+                        if (data.adminAccounts && data.adminAccounts.length > 0) {
+                            html += '<div class="security-section">';
+                            html += '<h4><i class="fas fa-users-cog"></i> 管理员账户列表</h4>';
+                            html += '<ul>';
+                            data.adminAccounts.forEach(admin => {
+                                html += `<li><i class="fas fa-user-circle"></i> ${admin}</li>`;
+                            });
+                            html += '</ul>';
+                            html += '</div>';
+                        }
+                        
+                        if (data.recentLogins && data.recentLogins.length > 0) {
+                            html += '<div class="security-section">';
+                            html += '<h4><i class="fas fa-sign-in-alt"></i> 最近登录活动</h4>';
+                            html += '<table class="table">';
+                            html += '<thead><tr><th>用户名</th><th>登录时间</th><th>IP地址</th></tr></thead>';
+                            html += '<tbody>';
+                            data.recentLogins.forEach(login => {
+                                html += `<tr><td><i class="fas fa-user"></i> ${login.username}</td><td><i class="fas fa-clock"></i> ${login.time}</td><td><i class="fas fa-globe"></i> ${login.ip || '本地登录'}</td></tr>`;
+                            });
+                            html += '</tbody></table>';
+                            html += '</div>';
+                        }
+                        
+                        if (data.securityTips && data.securityTips.length > 0) {
+                            html += '<div class="security-section">';
+                            html += '<h4><i class="fas fa-lightbulb"></i> 安全建议</h4>';
+                            html += '<ul>';
+                            data.securityTips.forEach(tip => {
+                                html += `<li><i class="fas fa-exclamation-circle"></i> ${tip}</li>`;
+                            });
+                            html += '</ul>';
+                            html += '</div>';
+                        }
+                        
+                        // 如果没有数据显示空状态
+                        if ((!data.adminAccounts || data.adminAccounts.length === 0) && 
+                            (!data.recentLogins || data.recentLogins.length === 0) && 
+                            (!data.securityTips || data.securityTips.length === 0)) {
+                            html += '<div class="message info">' +
+                                '<i class="fas fa-info-circle"></i> 未发现账户安全问题，系统安全状态良好' +
+                            '</div>';
+                        }
+                        
+                        html += '</div>';
+                        resultsContainer.innerHTML = html;
+                    } else {
+                        resultsContainer.innerHTML = `<div class="error-message">
+                            <i class="fas fa-exclamation-triangle"></i> 检查失败：${data.message || '未知错误'}
+                        </div>`;
+                    }
+                })
+                .catch(error => {
+                    resultsContainer.innerHTML = `<div class="error-message">
+                        <i class="fas fa-times-circle"></i> 检查失败：${error.message || '网络错误'}
+                    </div>`;
+                });
+        }
+        
+        // 验证管理员权限
+        function verifyAdmin() {
+            const resultsContainer = document.getElementById('securityResults');
+            resultsContainer.innerHTML = '<div class="loading">正在验证管理员权限...</div>';
+            
+            fetch('/api/security/check-admin')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = '<h3><i class="fas fa-key"></i> 管理员权限验证结果</h3>';
+                        html += '<div class="security-report">';
+                        
+                        if (data.isAdmin) {
+                            html += '<div class="success-message">' +
+                                '<i class="fas fa-check-circle"></i> 系统正在以管理员权限运行' +
+                            '</div>';
+                            html += '<p style="padding: 15px; background-color: #e8f5e9; border-radius: 6px;">' +
+                                '<i class="fas fa-info-circle" style="color: #27ae60; margin-right: 10px;"></i>' +
+                                '您拥有完整的管理权限，可以执行所有系统操作和配置' +
+                            '</p>';
+                        } else {
+                            html += '<div class="warning-message">' +
+                                '<i class="fas fa-exclamation-circle"></i> 系统未以管理员权限运行' +
+                            '</div>';
+                            html += '<p style="padding: 15px; background-color: #fff3cd; border-radius: 6px;">' +
+                                '<i class="fas fa-lightbulb" style="color: #f39c12; margin-right: 10px;"></i>' +
+                                '部分高级管理功能可能无法正常使用，建议以管理员身份重新启动应用程序以获得完整功能' +
+                            '</p>';
+                        }
+                        
+                        // 添加权限相关信息
+                        html += '<div class="security-section">';
+                        html += '<h4><i class="fas fa-info-circle"></i> 权限信息</h4>';
+                        html += '<p>当前环境：' + (data.environment || '未知') + '</p>';
+                        if (data.permissions) {
+                            html += '<ul>';
+                            Object.entries(data.permissions).forEach(([key, value]) => {
+                                const statusClass = value ? 'success' : 'error';
+                                const statusIcon = value ? 'check' : 'times';
+                                html += `<li><strong>${key}:</strong> <span class="${statusClass}"><i class="fas fa-${statusIcon}"></i> ${value ? '已授权' : '未授权'}</span></li>`;
+                            });
+                            html += '</ul>';
+                        }
+                        html += '</div>';
+                        
+                        html += '</div>';
+                        resultsContainer.innerHTML = html;
+                    } else {
+                        resultsContainer.innerHTML = `<div class="error-message">
+                            <i class="fas fa-exclamation-triangle"></i> 验证失败：${data.message || '未知错误'}
+                        </div>`;
+                    }
+                })
+                .catch(error => {
+                    resultsContainer.innerHTML = `<div class="error-message">
+                        <i class="fas fa-times-circle"></i> 验证失败：${error.message || '网络错误'}
+                    </div>`;
+                });
+        }
+        
+        // 查看日志
+        function viewLogs() {
+            const resultsContainer = document.getElementById('securityResults');
+            resultsContainer.innerHTML = '<div class="loading">正在加载操作日志...</div>';
+            
+            fetch('/api/security/logs')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = '<h3><i class="fas fa-history"></i> 操作日志</h3>';
+                        html += '<div class="security-report">';
+                        
+                        if (data.logs && data.logs.length > 0) {
+                            // 统计信息
+                            const successCount = data.logs.filter(log => log.success).length;
+                            const errorCount = data.logs.filter(log => !log.success).length;
+                            
+                            html += '<div class="security-section" style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">';
+                            html += '<div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px;">';
+                            html += `<div><strong>总记录数:</strong> ${data.logs.length}</div>`;
+                            html += `<div><strong>成功操作:</strong> <span class="success">${successCount}</span></div>`;
+                            html += `<div><strong>失败操作:</strong> <span class="error">${errorCount}</span></div>`;
+                            html += '</div>';
+                            html += '</div>';
+                            
+                            html += '<div class="security-section">';
+                            html += '<div style="overflow-x: auto;">';
+                            html += '<table class="table">';
+                            html += '<thead><tr><th>时间</th><th>操作类型</th><th>操作内容</th><th>结果</th></tr></thead>';
+                            html += '<tbody>';
+                            data.logs.forEach(log => {
+                                const resultClass = log.success ? 'success' : 'error';
+                                const resultIcon = log.success ? 'check-circle' : 'times-circle';
+                                const typeIcon = getOperationTypeIcon(log.type);
+                                
+                                html += `<tr>
+                                    <td><i class="fas fa-clock"></i> ${log.time}</td>
+                                    <td><i class="fas fa-${typeIcon}"></i> ${log.type}</td>
+                                    <td>${log.detail}</td>
+                                    <td class="${resultClass}"><i class="fas fa-${resultIcon}"></i> ${log.success ? '成功' : '失败'}</td>
+                                </tr>`;
+                            });
+                            html += '</tbody></table>';
+                            html += '</div>';
+                            html += '</div>';
+                        } else {
+                            html += '<div class="message info">' +
+                                '<i class="fas fa-info-circle"></i> 暂无操作日志记录' +
+                            '</div>';
+                        }
+                        
+                        html += '</div>';
+                        resultsContainer.innerHTML = html;
+                    } else {
+                        resultsContainer.innerHTML = `<div class="error-message">
+                            <i class="fas fa-exclamation-triangle"></i> 加载失败：${data.message || '未知错误'}
+                        </div>`;
+                    }
+                })
+                .catch(error => {
+                    resultsContainer.innerHTML = `<div class="error-message">
+                        <i class="fas fa-times-circle"></i> 加载失败：${error.message || '网络错误'}
+                    </div>`;
+                });
+        }
+        
+        // 根据操作类型获取对应的图标
+        function getOperationTypeIcon(type) {
+            const iconMap = {
+                '登录': 'sign-in-alt',
+                '登出': 'sign-out-alt',
+                '修改': 'edit',
+                '删除': 'trash-alt',
+                '添加': 'plus-circle',
+                '查询': 'search',
+                '安全': 'shield-alt',
+                '权限': 'key',
+                '配置': 'cog'
+            };
+            
+            for (const [key, icon] of Object.entries(iconMap)) {
+                if (type.includes(key)) {
+                    return icon;
+                }
+            }
+            
+            return 'file-alt';
+        }
+        
+        // 显示消息
+        function showMessage(message, type = 'info') {
+            // 定义图标映射
+            const iconMap = {
+                success: 'check-circle',
+                error: 'exclamation-circle',
+                warning: 'exclamation-triangle',
+                info: 'info-circle'
+            };
+            
+            // 创建消息元素
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+            msgDiv.innerHTML = `<i class="fas fa-${iconMap[type] || 'info-circle'}"></i> ${message}`;
+            
+            // 添加到页面
+            document.body.appendChild(msgDiv);
+            
+            // 添加淡入动画
+            setTimeout(() => {
+                msgDiv.style.opacity = '1';
+            }, 10);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                msgDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (document.body.contains(msgDiv)) {
+                        document.body.removeChild(msgDiv);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

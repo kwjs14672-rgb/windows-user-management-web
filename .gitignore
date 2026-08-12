@@ -1,0 +1,25 @@
+# 依赖
+node_modules/
+
+# 日志
+logs/
+*.log
+
+# 运行时配置文件（包含密码哈希等敏感信息）
+config/admin_config.json
+config/admin_config.json.bak
+config/user_authorizations.json
+config/license.json
+
+# 构建产物
+dist/
+build/
+installer/
+
+# 测试
+*.test.js
+test_verify.js
+
+# 系统文件
+.DS_Store
+Thumbs.db

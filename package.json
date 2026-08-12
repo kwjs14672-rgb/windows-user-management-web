@@ -1,0 +1,34 @@
+{
+  "name": "windows-user-management-web",
+  "version": "2.0.0",
+  "description": "Windows用户远程管理系统 - 管理用户账户、密码和会话（开源版，无授权模块）",
+  "main": "server.js",
+  "bin": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "pkg server.js --targets node20-win-x64 --output dist/UserManager.exe"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ejs": "^3.1.9",
+    "node-windows": "^1.0.0-beta.8",
+    "iconv-lite": "^0.6.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "license": "MIT",
+  "pkg": {
+    "assets": [
+      "views/**/*",
+      "public/**/*"
+    ],
+    "scripts": [
+      "src/**/*.js"
+    ],
+    "targets": [
+      "node18-win-x64"
+    ],
+    "outputPath": "dist"
+  }
+}

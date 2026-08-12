@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统管理 - 远程服务器登录管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a:hover {
+            background-color: #34495e;
+        }
+
+        .nav-links a.active {
+            background-color: #1abc9c;
+        }
+
+        .nav-links .btn {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-links .btn:hover {
+            background-color: #c0392b;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            float: left;
+            margin-top: -3px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        h2 {
+            color: #34495e;
+            margin: 20px 0 15px 0;
+            font-size: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .operation-bar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #2c3e50;
+            font-size: 20px;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-button:hover {
+            color: #333;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .password-tip {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .delete-confirm-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .admin-list-info {
+            margin-bottom: 15px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            .nav-links li {
+                margin-left: 0;
+                margin-bottom: 10px;
+            }
+
+            .logo {
+                float: none;
+                margin-bottom: 15px;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">远程服务器登录管理系统V2.0</div>
+            <ul class="nav-links">
+                <li><a href="/">首页</a></li>
+                <li><a href="/users">账号管理</a></li>
+                <li><a href="/authorization">用户管理</a></li>
+                <li><a href="/sessions">会话管理</a></li>
+                <li><a href="/security">安全操作</a></li>
+                <li><a href="/admin-management" class="active">系统管理</a></li>
+
+                <li><a href="/logout" class="btn danger">退出登录</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="card">
+            <h1>系统管理</h1>
+            <p>管理员账户管理与系统配置</p>
+            
+            <!-- 消息提示 -->
+            <% if (error) { %>
+                <div class="alert alert-error">
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <% if (success) { %>
+                <div class="alert alert-success">
+                    <%= success %>
+                </div>
+            <% } %>
+
+            <!-- 管理员账户管理 -->
+            <section>
+                <h2>管理员账户管理</h2>
+                <div class="operation-bar">
+                    <button id="addAdminBtn" class="btn primary">添加管理员</button>
+                </div>
+                
+                <div class="admin-list-info">
+                    当前共有 <strong id="adminCount"><%= admins.length %></strong> 个管理员账户
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>创建时间</th>
+                                <th>密码最后修改时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody">
+                            <% admins.forEach(admin => { %>
+                                <tr data-username="<%= admin.username %>">
+                                    <td><%= admin.username %></td>
+                                    <td><%= new Date(admin.createdAt).toLocaleString('zh-CN') %></td>
+                                    <td><%= new Date(admin.lastChanged).toLocaleString('zh-CN') %></td>
+                                    <td>
+                                        <span class="status-badge active">活跃</span>
+                                    </td>
+                                    <td>
+                                        <% if (admin.username !== 'administrator') { %>
+                                            <!-- 非administrator用户显示修改密码和删除按钮 -->
+                                            <button class="btn small primary" onclick="showChangePasswordModal('<%= admin.username %>')">修改密码</button>
+                                            <button class="btn small danger" onclick="showDeleteConfirmModal('<%= admin.username %>')">删除</button>
+                                        <% } else { %>
+                                            <!-- administrator用户显示修改密码按钮 -->
+                                            <button class="btn small primary" onclick="showChangePasswordModal('<%= admin.username %>')">修改密码</button>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 活跃会话管理 -->
+            <section>
+                <h2>活跃会话管理</h2>
+                <div class="operation-bar">
+                    <button id="refreshSessionsBtn" class="btn secondary">刷新会话列表</button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>登录时间</th>
+                                <th>最后活动时间</th>
+                                <th>在线时长</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionTableBody">
+                            <% if (activeSessions && activeSessions.length > 0) { %>
+                                <% activeSessions.forEach(session => { %>
+                                    <tr>
+                                        <td><%= session.username %></td>
+                                        <td><%= new Date(session.createdAt).toLocaleString('zh-CN') %></td>
+                                        <td><%= new Date(session.lastActive).toLocaleString('zh-CN') %></td>
+                                        <td><%= formatDuration(session.duration) %></td>
+                                        <td>
+                                            <button class="btn small danger" onclick="forceLogout('<%= session.username %>')">强制下线</button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #6c757d;">当前没有活跃会话</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- 添加管理员模态框 -->
+    <div id="addAdminModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加管理员账户</h3>
+            </div>
+            <form id="addAdminForm">
+                <div class="form-group">
+                    <label for="newAdminUsername">用户名</label>
+                    <input type="text" id="newAdminUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="newAdminPassword">密码</label>
+                    <input type="password" id="newAdminPassword" name="password" required>
+                    <small class="password-tip">密码必须包含至少8个字符，包括大小写字母、数字和特殊字符</small>
+                </div>
+                <div class="form-group">
+                    <label for="confirmAdminPassword">确认密码</label>
+                    <input type="password" id="confirmAdminPassword" name="confirmPassword" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn secondary" onclick="closeAddAdminModal()">取消</button>
+                    <button type="submit" class="btn primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+
+    <!-- 修改密码模态框 -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>修改管理员密码</h3>
+            </div>
+            <form id="changePasswordForm">
+                <input type="hidden" id="changePasswordUsername">
+                <p>正在修改管理员账户 <strong id="changePasswordAdminName"></strong> 的密码</p>
+                <div class="form-group">
+                    <label for="newPassword">新密码</label>
+                    <input type="password" id="newPassword" name="newPassword" required>
+                    <small class="password-tip">密码必须包含至少8个字符，包括大小写字母、数字和特殊字符</small>
+                </div>
+                <div class="form-group">
+                    <label for="confirmNewPassword">确认新密码</label>
+                    <input type="password" id="confirmNewPassword" name="confirmNewPassword" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn secondary" onclick="closeChangePasswordModal()">取消</button>
+                    <button type="submit" class="btn primary">修改密码</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认删除</h3>
+            </div>
+            <div class="delete-confirm-warning">
+                <strong>警告：</strong>删除管理员账户将导致该账户无法登录系统，请谨慎操作！
+            </div>
+            <p>您确定要删除管理员账户 <strong id="deleteAdminName"></strong> 吗？</p>
+            <input type="hidden" id="deleteUsername">
+            <div class="modal-footer">
+                <button type="button" class="btn secondary" onclick="closeDeleteConfirmModal()">取消</button>
+                <button type="button" class="btn danger" onclick="confirmDeleteAdmin()">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 格式化持续时间
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}小时${minutes}分钟${secs}秒`;
+            } else if (minutes > 0) {
+                return `${minutes}分钟${secs}秒`;
+            } else {
+                return `${secs}秒`;
+            }
+        }
+
+        // 显示添加管理员模态框
+        function showAddAdminModal() {
+            document.getElementById('addAdminForm').reset();
+            document.getElementById('addAdminModal').classList.add('show');
+        }
+
+        // 关闭添加管理员模态框
+        function closeAddAdminModal() {
+            document.getElementById('addAdminModal').classList.remove('show');
+        }
+
+
+
+        // 显示修改密码模态框
+        function showChangePasswordModal(username) {
+            document.getElementById('changePasswordForm').reset();
+            document.getElementById('changePasswordUsername').value = username;
+            document.getElementById('changePasswordAdminName').textContent = username;
+            document.getElementById('changePasswordModal').classList.add('show');
+        }
+
+        // 关闭修改密码模态框
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').classList.remove('show');
+        }
+
+        // 修改密码表单提交
+        document.getElementById('changePasswordForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('changePasswordUsername').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            console.log('===== 开始修改密码操作 =====');
+            console.log('表单数据:', {
+                username: username,
+                newPassword: newPassword ? '***已输入***' : '未输入',
+                confirmNewPassword: confirmNewPassword ? '***已输入***' : '未输入'
+            });
+            
+            // 简单验证
+            if (!newPassword || !confirmNewPassword) {
+                console.log('验证失败: 密码字段为空');
+                showMessage('请填写所有密码字段', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmNewPassword) {
+                console.log('验证失败: 两次输入的密码不一致');
+                showMessage('新密码和确认密码不一致', 'error');
+                return;
+            }
+            
+            // 显示加载状态
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = '处理中...';
+            
+            try {
+                // 使用JSON格式发送请求，与服务器API匹配
+                const requestData = {
+                    username: username,
+                    newPassword: newPassword,
+                    confirmNewPassword: confirmNewPassword
+                };
+                
+                // 记录请求前的时间
+                const startTime = Date.now();
+                console.log(`[${new Date().toISOString()}] 发送修改密码请求...`);
+                console.log('发送的请求数据:', JSON.stringify(requestData));
+                
+                // 使用正确的API路径和内容类型
+                const response = await fetch('/api/admins/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData),
+                    credentials: 'include', // 确保包含cookies
+                });
+                
+                const endTime = Date.now();
+                console.log(`[${new Date().toISOString()}] 请求完成，耗时: ${endTime - startTime}ms`);
+                console.log('API响应状态:', response.status);
+                console.log('API响应状态文本:', response.statusText);
+                
+                // 获取响应头信息
+                const headers = {};
+                response.headers.forEach((value, key) => {
+                    headers[key] = value;
+                });
+                console.log('响应头:', headers);
+                
+                // 解析响应
+                let data;
+                try {
+                    data = await response.json();
+                    console.log('API响应数据:', JSON.stringify(data));
+                } catch (jsonError) {
+                    console.error('JSON解析错误:', jsonError);
+                    // 如果不是JSON响应，检查是否是重定向
+                    if (response.redirected) {
+                        console.log('检测到重定向到:', response.url);
+                        if (response.url.includes('/login')) {
+                            showMessage('会话已过期，请重新登录', 'error');
+                            setTimeout(() => window.location.href = '/login', 2000);
+                            return;
+                        }
+                    }
+                    throw new Error('服务器响应格式错误');
+                }
+                
+                if (data.success) {
+                    console.log('✅ 密码修改成功');
+                    closeChangePasswordModal();
+                    showMessage('密码修改成功', 'success');
+                    refreshAdminList();
+                } else {
+                    console.error('❌ 密码修改失败:', data.message || '修改失败');
+                    showMessage(data.message || '修改失败', 'error');
+                }
+            } catch (error) {
+                console.error('❌ 修改密码时出错:', error.message);
+                console.error('完整错误对象:', error);
+                if (error.stack) {
+                    console.error('错误堆栈:', error.stack);
+                }
+                
+                // 提供更详细的错误信息
+                let errorMessage = '网络错误，请稍后重试';
+                
+                if (error.message.includes('timeout')) {
+                    errorMessage = '请求超时，请稍后重试';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = '无法连接到服务器，请检查服务器是否运行';
+                    console.error('可能的原因: 1. 服务器未运行 2. 网络连接问题 3. CORS限制');
+                    console.log('服务器地址:', window.location.origin);
+                } else if (error.status === 400 || error.message.includes('400')) {
+                    errorMessage = '请求参数错误';
+                } else if (error.status === 401 || error.message.includes('401')) {
+                    errorMessage = '未授权，请重新登录';
+                } else if (error.status === 403 || error.message.includes('403')) {
+                    errorMessage = '权限不足，无法执行此操作';
+                } else if (error.status === 404 || error.message.includes('404')) {
+                    errorMessage = '请求的接口不存在';
+                } else if (error.status === 500 || error.message.includes('500')) {
+                    errorMessage = '服务器内部错误';
+                }
+                
+                showMessage(errorMessage, 'error');
+            } finally {
+                // 恢复按钮状态
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+                console.log('===== 修改密码操作结束 =====');
+            }
+        });
+
+        // 显示删除确认模态框
+        function showDeleteConfirmModal(username) {
+            document.getElementById('deleteUsername').value = username;
+            document.getElementById('deleteAdminName').textContent = username;
+            document.getElementById('deleteConfirmModal').classList.add('show');
+        }
+
+        // 关闭删除确认模态框
+        function closeDeleteConfirmModal() {
+            document.getElementById('deleteConfirmModal').classList.remove('show');
+        }
+
+        // 添加管理员表单提交
+        document.getElementById('addAdminForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('newAdminUsername').value.trim();
+            const password = document.getElementById('newAdminPassword').value;
+            const confirmPassword = document.getElementById('confirmAdminPassword').value;
+            
+            if (!username || !password || !confirmPassword) {
+                alert('请填写完整的管理员信息');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+            
+            fetch('/api/admins/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password, confirmPassword })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeAddAdminModal();
+                    showMessage('管理员账户创建成功', 'success');
+                    refreshAdminList();
+                } else {
+                    showMessage(data.message || '创建失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('添加管理员时出错:', error);
+                showMessage('网络错误，请稍后重试', 'error');
+            });
+        });
+
+
+
+        // 确认删除管理员
+        function confirmDeleteAdmin() {
+            const username = document.getElementById('deleteUsername').value;
+            
+            fetch('/api/admins/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeDeleteConfirmModal();
+                    showMessage('管理员账户已删除', 'success');
+                    refreshAdminList();
+                } else {
+                    showMessage(data.message || '删除失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('删除管理员时出错:', error);
+                showMessage('网络错误，请稍后重试', 'error');
+            });
+        }
+
+        // 强制下线用户
+        function forceLogout(username) {
+            if (confirm(`确定要强制用户 ${username} 下线吗？`)) {
+                fetch('/api/admin/force-logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        refreshSessionList();
+                    } else {
+                        showMessage(data.message || '操作失败', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('强制下线时出错:', error);
+                    showMessage('网络错误，请稍后重试', 'error');
+                });
+            }
+        }
+
+        // 刷新管理员列表
+        function refreshAdminList() {
+            fetch('/api/admins')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const tableBody = document.getElementById('adminTableBody');
+                        tableBody.innerHTML = '';
+                        
+                        data.admins.forEach(admin => {
+                            const row = document.createElement('tr');
+                            row.dataset.username = admin.username;
+                            
+                            row.innerHTML = `
+                                <td>${admin.username}</td>
+                                <td>${new Date(admin.createdAt).toLocaleString('zh-CN')}</td>
+                                <td>${new Date(admin.lastChanged).toLocaleString('zh-CN')}</td>
+                                <td>
+                                    <span class="status-badge active">活跃</span>
+                                </td>
+                                <td>
+                                        ${admin.username !== 'administrator' ? 
+                                            `<button class="btn small danger" onclick="showDeleteConfirmModal('${admin.username}')">删除</button>` : 
+                                            '<button class="btn small secondary" disabled>默认账户</button>'
+                                        }
+                                    </td>
+                            `;
+                            
+                            tableBody.appendChild(row);
+                        });
+                        
+                        document.getElementById('adminCount').textContent = data.admins.length;
+                    }
+                })
+                .catch(error => {
+                    console.error('刷新管理员列表时出错:', error);
+                });
+        }
+
+        // 刷新会话列表
+        function refreshSessionList() {
+            fetch('/api/admin/sessions')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const tableBody = document.getElementById('sessionTableBody');
+                        tableBody.innerHTML = '';
+                        
+                        if (data.sessions && data.sessions.length > 0) {
+                            data.sessions.forEach(session => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td>${session.username}</td>
+                                    <td>${new Date(session.createdAt).toLocaleString('zh-CN')}</td>
+                                    <td>${new Date(session.lastActive).toLocaleString('zh-CN')}</td>
+                                    <td>${formatDuration(session.duration)}</td>
+                                    <td>
+                                        <button class="btn small danger" onclick="forceLogout('${session.username}')">强制下线</button>
+                                    </td>
+                                `;
+                                tableBody.appendChild(row);
+                            });
+                        } else {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `<td colspan="5" style="text-align: center; color: #6c757d;">当前没有活跃会话</td>`;
+                            tableBody.appendChild(row);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('刷新会话列表时出错:', error);
+                });
+        }
+
+        // 显示消息提示
+        function showMessage(message, type) {
+            // 移除已有的消息提示
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
+            // 创建新的消息提示
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            // 插入到页面顶部
+            const card = document.querySelector('.card');
+            card.insertBefore(alert, card.firstChild);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }, 3000);
+        }
+
+        // 绑定事件监听器
+        document.getElementById('addAdminBtn').addEventListener('click', showAddAdminModal);
+        document.getElementById('refreshSessionsBtn').addEventListener('click', refreshSessionList);
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

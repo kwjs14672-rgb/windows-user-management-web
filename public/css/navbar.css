@@ -1,0 +1,75 @@
+/* 导航栏简化样式 */
+.navbar {
+    background-color: #2c3e50 !important;
+    color: white !important;
+    padding: 15px 0 !important;
+    margin-bottom: 30px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    display: block !important;
+}
+
+.navbar .container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0 20px !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+}
+
+.navbar .logo {
+    font-size: 18px !important;
+    font-weight: bold !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+.navbar .nav-links {
+    display: flex !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.navbar .nav-links li {
+    margin-left: 10px !important;
+    display: inline-block !important;
+}
+
+.navbar .nav-links a {
+    text-decoration: none !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    display: inline-block !important;
+}
+
+.navbar .nav-links a:hover {
+    background-color: #34495e !important;
+    color: white !important;
+}
+
+.navbar .nav-links a.active {
+    background-color: #3498db !important;
+    color: white !important;
+}
+
+/* 退出登录按钮样式 */
+.navbar .btn.danger {
+    background-color: #e74c3c !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    margin-left: 10px !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    display: inline-block !important;
+}
+
+.navbar .btn.danger:hover {
+    background-color: #c0392b !important;
+    color: white !important;
+}
