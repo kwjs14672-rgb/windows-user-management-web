@@ -35,7 +35,7 @@ ensureAuthorizationFile();
 // 读取用户授权信息
 function getUserAuthorizations() {
   try {
-    const data = fs.readFileSync(AUTHORIZATION_FILE, 'utf8');
+    const data = fs.readFileSync(AUTHORIZATION_FILE, 'utf8').replace(/^\uFEFF/, '');
     return JSON.parse(data).authorizations || {};
   } catch (error) {
     logger.error('读取授权信息失败:', error);
@@ -146,7 +146,7 @@ function isUserAuthorized(username) {
 // 从配置文件读取授权检查间隔（分钟）
 function getAuthorizationCheckInterval() {
   try {
-    const configData = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8');
+    const configData = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8').replace(/^\uFEFF/, '');
     const config = JSON.parse(configData);
     // 默认10分钟，范围限制在1-120分钟之间
     const interval = config.settings?.authorizationCheckInterval || 10;

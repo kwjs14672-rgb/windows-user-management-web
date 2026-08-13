@@ -2,7 +2,7 @@
 ; 编译: ISCC.exe installer.iss
 
 #define MyAppName "Windows用户远程管理系统"
-#define MyAppVersion "2.0.0"
+#define MyAppVersion "2.0.1"
 #define MyAppPublisher "windows-user-management-web"
 #define MyAppExeName "windows-user-management-web.exe"
 
@@ -28,7 +28,9 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Default.isl"
 [Files]
 ; 主程序 exe
 Source: "dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-; 服务安装/卸载脚本
+; 辅助脚本
+Source: "firewall-open.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "autostart-install.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "install-service.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "uninstall-service.bat"; DestDir: "{app}"; Flags: ignoreversion
 
@@ -39,18 +41,20 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Tasks]
 Name: "desktopicon"; Description: "创建桌面快捷方式"; GroupDescription: "附加任务:"
-Name: "installservice"; Description: "注册为 Windows 服务（开机自启）"; GroupDescription: "附加任务:"; Flags: checkedonce
+Name: "firewall"; Description: "放行防火墙端口（允许其他电脑访问）"; GroupDescription: "附加任务:"; Flags: checkedonce
+Name: "autostart"; Description: "设置开机自启（开机自动运行）"; GroupDescription: "附加任务:"; Flags: checkedonce
 
 [Run]
-; 注册为 Windows 服务（勾选时）
-Filename: "{app}\install-service.bat"; WorkingDir: "{app}"; Flags: runhidden; Tasks: installservice; StatusMsg: "正在注册 Windows 服务..."
-; 安装后启动服务
-Filename: "sc.exe"; Parameters: "start WindowsUserManager"; Flags: runhidden; Tasks: installservice; StatusMsg: "正在启动服务..."
+; 放行防火墙（勾选时）
+Filename: "{app}\firewall-open.bat"; WorkingDir: "{app}"; Flags: runhidden; Tasks: firewall; StatusMsg: "正在配置防火墙..."
+; 设置开机自启（勾选时）
+Filename: "{app}\autostart-install.bat"; WorkingDir: "{app}"; Flags: runhidden; Tasks: autostart; StatusMsg: "正在设置开机自启..."
 ; 启动浏览器打开管理页面
 Filename: "http://localhost:3000"; Flags: shellexec runhidden; Description: "打开管理页面"
 
 [UninstallRun]
 Filename: "{app}\uninstall-service.bat"; WorkingDir: "{app}"; Flags: runhidden
+Filename: "schtasks.exe"; Parameters: "/Delete /TN ""WindowsUserManager"" /F"; WorkingDir: "{app}"; Flags: runhidden
 
 [Code]
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -60,6 +64,7 @@ begin
            '默认管理员账户: administrator' + #13#10 +
            '默认密码: admin123' + #13#10 +
            '请在首次登录后立即修改密码。' + #13#10 + #13#10 +
-           '访问地址: http://localhost:3000' + #13#10 +
-           '（如已勾选注册服务，系统将开机自启）', mbInformation, MB_OK);
+           '本机访问: http://localhost:3000' + #13#10 +
+           '局域网访问: http://本机IP:3000（需勾选放行防火墙）' + #13#10 +
+           '修改端口: 编辑 {app}\config\admin_config.json 中的 settings.port', mbInformation, MB_OK);
 end;

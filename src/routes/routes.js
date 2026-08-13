@@ -37,7 +37,7 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
       }
       
       // 读取现有配置
-      const configData = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8');
+      const configData = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8').replace(/^\uFEFF/, '');
       const config = JSON.parse(configData);
       
       // 更新配置
@@ -93,7 +93,7 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
       }
       
       // 读取现有配置
-      const configData = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8');
+      const configData = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8').replace(/^\uFEFF/, '');
       const config = JSON.parse(configData);
       
       // 更新配置

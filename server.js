@@ -91,7 +91,7 @@ try {
   const { ADMIN_CONFIG_PATH } = require('./src/config/adminConfig');
   const fs = require('fs');
   if (fs.existsSync(ADMIN_CONFIG_PATH)) {
-    const configData = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8');
+    const configData = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8').replace(/^\uFEFF/, '');
     const config = JSON.parse(configData);
     if (config.settings && config.settings.sessionTimeout) {
       sessionTimeout = config.settings.sessionTimeout;
@@ -227,6 +227,22 @@ setupSecurityRoutes(app, logger, requireAuth);
 // 保存服务器实例为全局变量，防止被垃圾回收
 let serverInstance;
 
+// 获取本机所有局域网 IPv4 地址
+function getLocalIPs() {
+  const os = require('os');
+  const interfaces = os.networkInterfaces();
+  const ips = [];
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      // 只取 IPv4、非内部地址（排除 127.0.0.1）
+      if (iface.family === 'IPv4' && !iface.internal) {
+        ips.push(iface.address);
+      }
+    }
+  }
+  return ips;
+}
+
 // 启动服务器
 function startServer() {
   console.log('开始启动服务器...');
@@ -235,11 +251,21 @@ function startServer() {
   
   // 启动服务器，处理端口占用情况
   serverInstance = app.listen(PORT, '0.0.0.0', () => {
+    const localIPs = getLocalIPs();
+    let lanInfo = '';
+    if (localIPs.length > 0) {
+      lanInfo = localIPs.map(ip => `局域网访问: http://${ip}:${PORT}`).join('\n');
+    } else {
+      lanInfo = '（未检测到局域网 IP，仅本机可访问）';
+    }
+    
     const banner = `==================================================================
 服务器运行在 http://localhost:${PORT}
 登录地址: http://localhost:${PORT}/login
+${lanInfo}
 ==================================================================
-提示: 如需修改端口，请设置环境变量 PORT 或在 admin_config.json 的 settings 中配置 port 字段`;
+提示: 如需修改端口，请设置环境变量 PORT 或在 admin_config.json 的 settings 中配置 port 字段
+其他电脑访问本服务时，请确保 Windows 防火墙已放行端口 ${PORT}（首次安装会自动添加）`;
     
     logger.info(banner);
     // 直接输出到控制台以确保用户看到启动信息

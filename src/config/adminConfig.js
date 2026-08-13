@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const logger = require('../utils/logger');
 const { hashPassword, generateSalt } = require('../utils/passwordUtils');
 const { CONFIG_DIR, ensureDir } = require('../utils/runtimePaths');
+const { readJsonFile } = require('../utils/jsonUtils');
 
 // 管理员配置文件路径（pkg 下为 exe 所在目录的 config，开发模式为项目 config）
 const ADMIN_CONFIG_PATH = path.join(CONFIG_DIR, 'admin_config.json');
@@ -51,7 +52,7 @@ function ensureAdminConfig() {
 function getAdminConfig() {
   try {
     ensureAdminConfig();
-    const config = JSON.parse(fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8'));
+    const config = readJsonFile(ADMIN_CONFIG_PATH);
     return config.admin || {};
   } catch (error) {
     logger.error('读取管理员配置失败:', error);
@@ -96,7 +97,7 @@ function updateAdminPassword(newPassword) {
     let config;
     try {
       if (fs.existsSync(ADMIN_CONFIG_PATH)) {
-        config = JSON.parse(fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8'));
+        config = readJsonFile(ADMIN_CONFIG_PATH);
       } else {
         config = { admin: {} };
         logger.info('配置文件不存在，创建默认配置');
@@ -146,7 +147,7 @@ function updateAdminPassword(newPassword) {
         fs.writeFileSync(ADMIN_CONFIG_PATH, JSON.stringify(config, null, 2));
         
         // 验证写入是否成功
-        const verifyContent = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8');
+        const verifyContent = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8').replace(/^\uFEFF/, '');
         const verifyConfig = JSON.parse(verifyContent);
         if (verifyConfig.admin && 
             verifyConfig.admin.passwordHash === hash && 
@@ -239,7 +240,7 @@ function getPort() {
   try {
     const configPath = path.join(CONFIG_DIR, 'admin_config.json');
     if (fs.existsSync(configPath)) {
-      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      const config = readJsonFile(configPath);
       if (config.settings && config.settings.port) {
         return parseInt(config.settings.port);
       }

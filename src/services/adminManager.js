@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { CONFIG_DIR } = require('../utils/runtimePaths');
+const { readJsonFile, readJsonFileSafe } = require('../utils/jsonUtils');
 
 // 配置文件路径（pkg 下为 exe 所在目录的 config）
 const ADMIN_CONFIG_PATH = path.join(CONFIG_DIR, 'admin_config.json');
@@ -26,7 +27,7 @@ class AdminManager {
                 return;
             }
 
-            const config = JSON.parse(fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8'));
+            const config = readJsonFile(ADMIN_CONFIG_PATH);
             
             // 检查是否需要从单管理员结构升级到多管理员结构
             if (config.admin && !config.admins) {
@@ -56,8 +57,8 @@ class AdminManager {
      * 创建默认管理员配置
      */
     createDefaultConfig() {
-        // 生成随机初始密码
-        const initialPassword = this.generateRandomPassword();
+        // 默认初始密码固定为 admin123（与安装器提示、README 保持一致）
+        const initialPassword = 'admin123';
         const salt = this.generateSalt();
         
         // 使用SHA-256哈希，不使用异步bcrypt以确保同步执行
@@ -87,7 +88,7 @@ class AdminManager {
         }
         
         fs.writeFileSync(ADMIN_CONFIG_PATH, JSON.stringify(defaultConfig, null, 2));
-        this.logger.info(`已创建默认管理员配置，初始密码为: ${initialPassword}`);
+        this.logger.info(`已创建默认管理员配置，默认密码为: ${initialPassword}（首次登录后请立即修改）`);
     }
     
     /**
@@ -111,7 +112,7 @@ class AdminManager {
             this.ensureAdminConfigStructure();
             
             // 读取管理员配置
-            const config = JSON.parse(fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8'));
+            const config = readJsonFile(ADMIN_CONFIG_PATH);
             
             // 处理对象形式的admins配置
             if (config.admins && typeof config.admins === 'object' && !Array.isArray(config.admins)) {
@@ -197,7 +198,7 @@ class AdminManager {
             
             const now = new Date().toISOString();
             
-            const config = JSON.parse(fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8'));
+            const config = readJsonFile(ADMIN_CONFIG_PATH);
             config.admins.push({
                 username,
                 passwordHash: hash,
@@ -259,7 +260,8 @@ class AdminManager {
             let config;
             try {
                 const fileContent = fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8');
-                config = JSON.parse(fileContent);
+                // 剥离 UTF-8 BOM，兼容 PowerShell Out-File 写入的带 BOM 文件
+                config = JSON.parse(fileContent.replace(/^\uFEFF/, ''));
             } catch (readError) {
                 if (readError.name === 'SyntaxError') {
                     throw new Error(`配置文件格式错误: ${readError.message}`);
@@ -353,7 +355,7 @@ class AdminManager {
         }
 
         try {
-            const config = JSON.parse(fs.readFileSync(ADMIN_CONFIG_PATH, 'utf8'));
+            const config = readJsonFile(ADMIN_CONFIG_PATH);
             const adminIndex = config.admins.findIndex(admin => admin.username === username);
             
             if (adminIndex === -1) {
