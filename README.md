@@ -1,6 +1,6 @@
 # Windows 用户远程管理系统
 
-基于 Node.js + Express 的 Windows 用户远程管理 Web 应用，通过浏览器远程管理 Windows 服务器上的用户账户、密码和会话。**支持局域网内任意电脑通过浏览器访问控制。**
+基于 Node.js + Express 的 Windows 用户远程管理 Web 应用，通过浏览器远程管理 Windows 服务器上的用户账户、密码和会话。支持**局域网**与**公网**任意电脑通过浏览器访问控制。
 
 ## 功能特性
 
@@ -10,103 +10,192 @@
 - ⏰ **用户授权**：按时间段管理 Windows 用户的使用授权，到期自动下线
 - 📊 **安全体检**：管理员账户审查、操作日志查看
 - 🖥️ **开机自启**：安装时可选设置开机自启（计划任务方式，无需登录）
+- 🌐 **公网访问**：安装包内置 frp 内网穿透，填写公网服务器 IP 即可一键开通公网访问
 
 ## 快速开始
 
-### 环境要求
+### 方式一：安装包（推荐，Windows 用户）
 
-- Node.js 18+（推荐 20+）
-- Windows 7/10/11 或 Windows Server（需管理员权限执行用户管理操作）
+下载 `WindowsUserManager-Setup-2.1.0.exe`，双击安装：
 
-### 安装与运行
+1. 附加任务页勾选（默认全选）：
+   - ✅ 放行防火墙端口（允许其他电脑访问）
+   - ✅ 设置开机自启（开机自动运行）
+   - ✅ 启用公网访问（内网穿透，需填公网服务器 IP）
+2. 填写 **frp 公网服务器 IP**（有一台公网 IP 的服务器即可，如云服务器）
+3. 安装完成自动启动服务、配置公网隧道、设置开机自启
+
+安装后：
+
+- 本机访问：`http://localhost:8080`
+- 公网访问：`http://你的公网服务器IP:8080`
+- 默认账户：`administrator`，初始密码：`admin123`（**首次登录后请立即修改**）
+
+### 方式二：源码运行
 
 ```bash
-# 1. 安装依赖
+# 环境要求：Node.js 18+
 npm install
-
-# 2. 启动服务
 npm start
 
-# 3. 浏览器访问
-http://localhost:3000
+# 浏览器访问
+http://localhost:8080
 ```
 
-默认管理员账户：`administrator`，初始密码：`admin123`（首次登录后请立即修改）
+默认管理员账户：`administrator`，初始密码：`admin123`
 
-> 安装包方式：运行 `WindowsUserManager-Setup-2.1.0.exe`，安装时勾选"放行防火墙端口"、"设置开机自启"和"启用公网访问"，填写公网服务器 IP 即可完成全部配置。
+> 源码运行默认端口 3000；安装包模式默认 8080。修改端口见下文。
 
-## 让其他电脑访问（局域网/远程控制）
+## 修改端口
 
-程序默认监听 `0.0.0.0`（所有网卡），其他电脑通过浏览器访问即可：
+配置文件 `config/admin_config.json` 的 `settings` 中添加：
 
-### 1. 局域网访问（最简单）
+```json
+{
+  "settings": {
+    "port": 9000
+  }
+}
+```
 
-1. 在运行服务的电脑上放行防火墙（安装时勾选，或手动以管理员运行 `firewall-open.bat`）
+重启服务生效（安装包模式：`schtasks /Run /TN "WindowsUserManager"`）。
+
+⚠️ 修改端口后需同步：防火墙放行新端口、frpc.toml 的 localPort、公网隧道 remotePort。
+
+## 局域网访问
+
+1. 安装时勾选"放行防火墙端口"（或手动运行 `firewall-open.bat`）
 2. 查看本机 IP：`ipconfig`，记下 IPv4 地址（如 `192.168.1.100`）
-3. 其他电脑浏览器访问：`http://192.168.1.100:3000`
+3. 其他电脑访问：`http://192.168.1.100:8080`
 
 启动时的控制台会直接显示所有可用的局域网访问地址。
 
-### 2. 公网访问（可选，需路由器支持）
+## 公网访问（frp 内网穿透）
 
-- **方案A（端口映射）**：在路由器上把公网端口（如 3000）映射到本机 IP 的 3000 端口，然后通过 `http://公网IP:3000` 访问
-- **方案B（内网穿透）**：使用 frp / ngrok / 花生壳 等工具将本机 3000 端口映射到公网
-- **注意**：暴露到公网前**务必修改默认密码**，并建议同时修改默认端口
+系统通过 [frp](https://github.com/fatedier/frp) 实现内网穿透，让互联网上任意电脑都能访问管理界面。
 
-### 3. 修改端口
+### 架构
 
-- 环境变量：`set PORT=8080 && npm start`
-- 配置文件：在 `config/admin_config.json` 的 `settings` 中添加 `"port": 8080`（修改后需重启服务）
-- 修改端口后，防火墙放行脚本需要同步修改端口号
+```
+任意电脑/手机 ──> http://公网服务器IP:8080 ──> frps(公网服务器) ──> frp隧道 ──> 本机8080
+```
+
+### 一体化安装包方式（最简单）
+
+安装时勾选"启用公网访问"并填写公网服务器 IP 即可，安装程序自动完成：
+- 生成 `frp/frpc.toml` 客户端配置
+- 注册 `WumFrpc` 开机自启任务
+- 立即启动隧道
+
+### 手动方式（自建 frp 服务端）
+
+**① 公网服务器（Linux）安装 frps：**
+
+```bash
+wget -O frp.tar.gz "https://ghfast.top/https://github.com/fatedier/frp/releases/download/v0.61.1/frp_0.61.1_linux_amd64.tar.gz"
+tar -xzf frp.tar.gz && mv frp_0.61.1_linux_amd64 /opt/frp
+
+cat > /opt/frp/frps.toml <<'EOF'
+bindPort = 7000
+auth.method = "token"
+auth.token = "换成你的随机token"
+EOF
+
+# systemd 开机自启
+cat > /etc/systemd/system/frps.service <<'EOF'
+[Unit]
+Description=FRP Server
+After=network.target
+[Service]
+Type=simple
+ExecStart=/opt/frp/frps -c /opt/frp/frps.toml
+Restart=on-failure
+RestartSec=5
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload && systemctl enable frps && systemctl start frps
+```
+
+放行端口：`ufw allow 7000/tcp && ufw allow 8080/tcp`（云服务器还需在安全组放行）
+
+**② 本机 frpc 客户端：**
+
+编辑 `C:\Program Files\WindowsUserManager\frp\frpc.toml`：
+
+```toml
+serverAddr = "你的公网服务器IP"
+serverPort = 7000
+auth.token = "和frps.toml里一样的token"
+
+[[proxies]]
+name = "wum-web"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 8080
+remotePort = 8080
+```
+
+启动：`schtasks /Run /TN "WumFrpc"`（已注册开机自启）
+
+**③ 完成后：** 任何电脑访问 `http://你的公网服务器IP:8080`
 
 ## 开机自启
 
-### 安装包方式
+安装包模式自动注册两个计划任务：
 
-安装时勾选"设置开机自启"即可。系统会在计划任务中创建 `WindowsUserManager` 任务（以 SYSTEM 身份运行，无需登录）。
-
-### 手动方式
-
-以管理员身份运行 `autostart-install.bat`。
+| 任务名 | 作用 |
+|---|---|
+| `WindowsUserManager` | 主服务开机自启 |
+| `WumFrpc` | frp 公网隧道开机自启 |
 
 常用命令：
 
 ```bash
-# 立即启动
-schtasks /Run /TN "WindowsUserManager"
-
-# 取消自启
-schtasks /Delete /TN "WindowsUserManager" /F
+schtasks /Run /TN "WindowsUserManager"    # 立即启动主服务
+schtasks /Run /TN "WumFrpc"               # 立即启动隧道
+schtasks /Delete /TN "WindowsUserManager" /F   # 取消自启
 ```
 
 ## 常见问题（FAQ）
 
 ### 登录提示"用户名或密码错误"
 
-- 默认账户是 `administrator`，默认密码 `admin123`（区分大小写）
-- 如果之前配置过密码，使用修改后的密码
-- 忘记密码时：停止服务 → 编辑 `config/admin_config.json`，将 `passwordHash` 改为 `698d51a19d8a121ce581499d7b701668` → 启动服务 → 用 `admin123` 登录
+- 默认账户 `administrator`，密码 `admin123`（区分大小写）
+- 忘记密码：停止服务 → 编辑 `config/admin_config.json`，将 `passwordHash` 改为 `698d51a19d8a121ce581499d7b701668` → 启动服务 → 用 `admin123` 登录后改密
 
 ### 程序启动后立即退出 / 端口被占用
 
-- 日志文件：`logs/app.log`（exe 同目录）
-- 端口被占用时修改 `config/admin_config.json` 中的 `settings.port` 换一个端口
-- 排查端口占用：`netstat -ano | findstr :3000`
+- 日志：`logs/app.log`（exe 同目录）
+- 端口被占用：修改 `config/admin_config.json` 的 `settings.port`
+- 排查：`netstat -ano | findstr :8080`
 
 ### 其他电脑访问不了
 
-- 确认防火墙已放行（运行 `firewall-open.bat`）
-- 确认访问的是 `http://本机IP:端口` 而不是 `localhost`
-- 确认两台电脑在同一局域网
+- 确认防火墙已放行（`firewall-open.bat`）
+- 确认访问 `http://本机IP:8080` 而不是 `localhost`
+- 确认两台电脑同一局域网
+
+### 公网访问不了
+
+- 本机验证隧道：`netstat -ano | findstr 7000` 应有 ESTABLISHED
+- 服务器验证：`systemctl status frps` 应 active (running)
+- 确认云安全组已放行 7000/8080
+- 确认 frpc.toml 的 token 与 frps.toml 一致
 
 ## 目录结构
 
 ```
 ├── server.js              # 主服务器入口
 ├── service-manager.js     # Windows 服务管理
+├── installer.iss          # Inno Setup 安装脚本
 ├── firewall-open.bat      # 防火墙放行脚本
-├── autostart-install.bat  # 开机自启安装脚本
-├── config/                # 配置文件（admin_config.json 等）
+├── autostart-install.bat  # 开机自启安装脚本（bat 版）
+├── autostart-install.ps1  # 开机自启安装脚本（PowerShell 版，安装器使用）
+├── setup-frpc.ps1         # frp 客户端自动配置脚本（安装器调用）
+├── config/                # 配置文件（admin_config.json 等，运行时生成）
+├── frp/                   # frp 客户端（安装包内置）
 ├── src/
 │   ├── config/            # 配置与授权逻辑
 │   ├── routes/            # 路由定义
@@ -129,7 +218,8 @@ schtasks /Delete /TN "WindowsUserManager" /F
 - **后端**：Node.js + Express 4
 - **模板**：EJS
 - **系统交互**：Node 内置 child_process（wmic/net/quser 等 Windows 命令）
-- **开机自启**：Windows 计划任务（schtasks）
+- **开机自启**：Windows 计划任务
+- **公网穿透**：frp
 
 ## 许可证
 
