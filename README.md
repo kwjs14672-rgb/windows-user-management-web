@@ -33,7 +33,7 @@ http://localhost:3000
 
 默认管理员账户：`administrator`，初始密码：`admin123`（首次登录后请立即修改）
 
-> 安装包方式：运行 `WindowsUserManager-Setup-x.x.x.exe`，安装时勾选"放行防火墙端口"和"设置开机自启"即可。
+> 安装包方式：运行 `WindowsUserManager-Setup-2.1.0.exe`，安装时勾选"放行防火墙端口"、"设置开机自启"和"启用公网访问"，填写公网服务器 IP 即可完成全部配置。
 
 ## 让其他电脑访问（局域网/远程控制）
 
