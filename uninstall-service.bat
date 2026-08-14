@@ -1,5 +1,5 @@
 @echo off
-rem 鍗歌浇 Windows 鐢ㄦ埛杩滅▼绠＄悊绯荤粺鏈嶅姟
+rem 卸载 Windows 用户远程管理系统服务
 set SERVICE_NAME=WindowsUserManager
 
 sc query %SERVICE_NAME% >nul 2>&1
