@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>账号管理 - 远程修改服务器用户密码资源管理系统</title>
+    <title>账号管理 - 云枢远程管理系统</title>
     <link rel="stylesheet" href="/css/style.css">
 <style>
   /* 导航栏样式 - 内联以确保优先级 */
@@ -718,26 +718,47 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/css/nova.css?v=2.2.0">
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="logo">远程服务器登录管理系统V2.0</div>
-            <ul class="nav-links">
-                <li><a href="/">首页</a></li>
-                <li><a href="/users" class="active">账号管理</a></li>
-                <li><a href="/authorization">用户管理</a></li>
-                <li><a href="/sessions">会话管理</a></li>
-                <li><a href="/security">安全操作</a></li>
-                <li><a href="/admin-management">系统管理</a></li>
-
-                <li><a href="/logout" class="btn danger">退出登录</a></li>
-            </ul>
+<div class="nova-shell">
+  <aside class="nova-side">
+    <div class="nova-brand">
+      <div class="nova-brand-logo">
+        <div class="nova-logo-mark">W</div>
+        <div>
+          <div class="nova-brand-name">云枢 · 远程管理</div>
+          <div class="nova-brand-sub">Windows User Manager</div>
         </div>
+      </div>
+    </div>
+    <nav class="nova-nav">
+      <div class="nova-group">总览</div>
+      <a href="/" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>工作台</span></a>
+      <div class="nova-group">用户管理</div>
+      <a href="/users" class="nova-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>账号管理</span></a>
+      <a href="/authorization" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg><span>授权管理</span></a>
+      <a href="/sessions" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>会话监控</span></a>
+      <div class="nova-group">系统</div>
+      <a href="/security" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span>安全中心</span></a>
+      <a href="/admin-management" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>系统设置</span></a>
     </nav>
-    
-    <div class="container">
+    <div class="nova-user">
+      <div class="nova-user-avatar">A</div>
+      <div>
+        <div class="nova-user-name">administrator</div>
+        <div class="nova-user-role">系统管理员</div>
+      </div>
+      <a href="/logout" title="退出登录">退出</a>
+    </div>
+  </aside>
+  <div class="nova-main">
+    <div class="nova-top">
+      <div class="nova-crumb">用户管理 / <b>账号管理</b></div>
+      <div class="nova-top-right"><span class="nova-dot"></span> 服务运行中</div>
+    </div>
+    <div class="nova-content">
+
         <h1>账号管理</h1>
         
         <!-- 用户管理卡片 -->
@@ -770,6 +791,7 @@
             
             <div class="loading" id="loading">加载中...</div>
             
+            <div class="table-container">
             <table class="table" id="userTable">
                 <thead>
                     <tr>
@@ -784,6 +806,7 @@
                     <!-- 用户列表将通过JavaScript动态生成 -->
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
     
@@ -1512,5 +1535,7 @@
                     });
         }
     </script>
+</div>
+</div>
 </body>
 </html>
