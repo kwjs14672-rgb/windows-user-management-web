@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
 const app = express();
 
 // 导入模块
@@ -18,11 +19,8 @@ const { getActiveSessions, disconnectUser, logoffUser } = require('./src/utils/s
 // 从环境变量或配置文件读取端口号
 const PORT = getPort();
 
-// 设置全局Content-Type响应头，确保中文正常显示
-app.use((req, res, next) => {
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  next();
-});
+// 页面/API 响应统一 UTF-8（静态资源由 express.static 处理，MIME 保持正确）
+// 注：此中间件在 express.static 之后注册，只影响未被静态资源处理的请求
 app.use(express.urlencoded({ extended: true })); // 处理表单数据
 app.use(express.json()); // 处理JSON数据
 
@@ -138,10 +136,7 @@ function requireAuth(req, res, next) {
     if (req.path.startsWith('/api/')) {
       return next();
     }
-    // 对于页面请求，重定向到用户管理页（默认首页）
-    if (req.path === '/') {
-      return res.redirect('/users');
-    }
+    // 对于页面请求，直接继续（/ 渲染工作台页面）
     return next();
   }
   
@@ -161,7 +156,39 @@ function requireAuth(req, res, next) {
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public')));
+
+// gzip 压缩中间件（只压缩页面/API 动态响应，静态资源由 express.static 自行处理）
+app.use((req, res, next) => {
+  // 静态资源跳过 gzip 包装（express.static 自带压缩协商，避免干扰 MIME/ETag）
+  if (req.path.startsWith('/css/') || req.path.startsWith('/js/') ||
+      req.path.startsWith('/images/') || req.path.startsWith('/img/') ||
+      req.path.startsWith('/fonts/') || req.path.startsWith('/favicon')) {
+    return next();
+  }
+  const acceptEncoding = req.headers['accept-encoding'] || '';
+  if (!acceptEncoding.includes('gzip')) return next();
+  const originalSend = res.send;
+  res.send = function (body) {
+    // 只压缩文本类内容
+    const type = String(res.getHeader('Content-Type') || '');
+    if (!/text|json|javascript|css|xml/.test(type)) {
+      return originalSend.call(this, body);
+    }
+    const buf = Buffer.isBuffer(body) ? body : Buffer.from(body, 'utf8');
+    if (buf.length < 512) return originalSend.call(this, body); // 小响应不压缩
+    zlib.gzip(buf, (err, zipped) => {
+      if (err || zipped.length >= buf.length) return originalSend.call(this, body);
+      res.setHeader('Content-Encoding', 'gzip');
+      res.setHeader('Content-Length', zipped.length);
+      res.removeHeader('ETag');
+      originalSend.call(this, zipped);
+    });
+  };
+  next();
+});
+
+// 静态资源：长缓存（CSS/JS 带版本号引用后无需重复下载）
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d', etag: true }));
 
 // API登录路由 - 必须在requireAuth之前定义
 app.post('/api/admins/login', (req, res) => {
