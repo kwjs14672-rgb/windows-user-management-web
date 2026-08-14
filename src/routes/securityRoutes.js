@@ -175,6 +175,69 @@ function setupSecurityRoutes(app, logger, requireAuth) {
     }
   });
 
+  // 获取/设置账户电源关机权限
+  // 配置文件：config/account_perms.json
+  const PERMS_FILE = path.join(CONFIG_DIR, 'account_perms.json');
+  
+  function readPerms() {
+    try {
+      if (fs.existsSync(PERMS_FILE)) {
+        const raw = fs.readFileSync(PERMS_FILE, 'utf8').replace(/^\uFEFF/, '');
+        const data = JSON.parse(raw);
+        return data.perms || {};
+      }
+    } catch (e) {
+      logger.error('读取账户权限配置失败:', e.message);
+    }
+    return {};
+  }
+  
+  function writePerms(perms) {
+    try {
+      if (!fs.existsSync(CONFIG_DIR)) fs.mkdirSync(CONFIG_DIR, { recursive: true });
+      fs.writeFileSync(PERMS_FILE, JSON.stringify({ perms: perms }, null, 2), 'utf8');
+      return true;
+    } catch (e) {
+      logger.error('写入账户权限配置失败:', e.message);
+      return false;
+    }
+  }
+
+  // 设置账户电源关机权限
+  app.post('/api/security/account-shutdown-perm', requireAuth, (req, res) => {
+    try {
+      const { username, enabled } = req.body;
+      if (!username) {
+        return res.json({ success: false, message: '缺少用户名参数' });
+      }
+      const perms = readPerms();
+      if (enabled) {
+        delete perms[username]; // 默认可用，删除即恢复默认
+      } else {
+        perms[username] = false; // 显式禁用
+      }
+      if (writePerms(perms)) {
+        logger.info(`账户权限设置: ${username} 电源关机${enabled ? '可用' : '不可用'}`);
+        res.json({ success: true, message: `账户 ${username} 电源关机已设为${enabled ? '可用' : '不可用'}` });
+      } else {
+        res.json({ success: false, message: '保存配置失败' });
+      }
+    } catch (error) {
+      logger.error('设置账户电源关机权限失败:', error.message);
+      res.json({ success: false, message: '设置失败: ' + error.message });
+    }
+  });
+
+  // 获取账户电源关机权限（合并到用户列表接口的辅助函数，供安全中心使用）
+  app.get('/api/security/account-perms', requireAuth, (req, res) => {
+    try {
+      const perms = readPerms();
+      res.json({ success: true, perms: perms });
+    } catch (error) {
+      res.json({ success: false, message: '读取失败: ' + error.message });
+    }
+  });
+
   logger.info('安全相关路由已设置');
 }
 

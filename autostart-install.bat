@@ -1,14 +1,14 @@
 @echo off
 rem ===================================================================
-rem Windows ç”¨æˆ·è¿œç¨‹ç®¡ç†ç³»ç»Ÿ - å¼€æœºè‡ªå¯å®‰è£…è„šæœ¬ï¼ˆè®¡åˆ’ä»»åŠ¡æ–¹å¼ï¼‰
-rem ä½œç”¨: å¼€æœºè‡ªåŠ¨å¯åŠ¨æœåŠ¡ï¼ˆæ— éœ€ç™»å½•ï¼Œåå°é™é»˜è¿è¡Œï¼‰
-rem ç”¨æ³•: ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œ  autostart-install.bat
-rem å‚æ•°: /S é™é»˜æ¨¡å¼ï¼ˆå®‰è£…ç¨‹åºè°ƒç”¨ï¼Œä¸æš‚åœï¼‰
+rem Windows ÓÃ»§Ô¶³Ì¹ÜÀíÏµÍ³ - ¿ª»ú×ÔÆô°²×°½Å±¾£¨¼Æ»®ÈÎÎñ·½Ê½£©
+rem ×÷ÓÃ: ¿ª»ú×Ô¶¯Æô¶¯·şÎñ£¨ÎŞĞèµÇÂ¼£¬ºóÌ¨¾²Ä¬ÔËĞĞ£©
+rem ÓÃ·¨: ÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ  autostart-install.bat
+rem ²ÎÊı: /S ¾²Ä¬Ä£Ê½£¨°²×°³ÌĞòµ÷ÓÃ£¬²»ÔİÍ££©
 rem ===================================================================
 
 net session >nul 2>&1
 if %errorlevel% neq 0 (
-    echo é”™è¯¯: è¯·ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œæœ¬è„šæœ¬ï¼
+    echo ´íÎó: ÇëÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ±¾½Å±¾£¡
     if /i not "%~1"=="/S" pause
     exit /b 1
 )
@@ -17,7 +17,7 @@ set APP_DIR=%~dp0
 set APP_EXE=%APP_DIR%windows-user-management-web.exe
 
 if not exist "%APP_EXE%" (
-    echo é”™è¯¯: æ‰¾ä¸åˆ° %APP_EXE%
+    echo ´íÎó: ÕÒ²»µ½ %APP_EXE%
     if /i not "%~1"=="/S" pause
     exit /b 1
 )
@@ -61,18 +61,18 @@ echo ^</Task^>
 schtasks /Delete /TN "WindowsUserManager" /F >nul 2>&1
 schtasks /Create /TN "WindowsUserManager" /XML "%TASK_XML%" /F
 if %errorlevel% neq 0 (
-    echo é”™è¯¯: ä»»åŠ¡è®¡åˆ’åˆ›å»ºå¤±è´¥ï¼
+    echo ´íÎó: ÈÎÎñ¼Æ»®´´½¨Ê§°Ü£¡
     if /i not "%~1"=="/S" pause
     exit /b 1
 )
 
 del "%TASK_XML%" >nul 2>&1
 
-echo å®Œæˆï¼å·²è®¾ç½®å¼€æœºè‡ªå¯ï¼ˆä»»åŠ¡å: WindowsUserManagerï¼‰ã€‚
+echo Íê³É£¡ÒÑÉèÖÃ¿ª»ú×ÔÆô£¨ÈÎÎñÃû: WindowsUserManager£©¡£
 if /i not "%~1"=="/S" (
     echo.
-    echo ç«‹å³å¯åŠ¨: schtasks /Run /TN "WindowsUserManager"
-    echo å–æ¶ˆè‡ªå¯: schtasks /Delete /TN "WindowsUserManager" /F
+    echo Á¢¼´Æô¶¯: schtasks /Run /TN "WindowsUserManager"
+    echo È¡Ïû×ÔÆô: schtasks /Delete /TN "WindowsUserManager" /F
     echo.
     pause
 )

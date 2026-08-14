@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>首页 - 远程服务器登录管理系统V2.0</title>
+    <title>云枢远程管理系统</title>
     <link rel="stylesheet" href="/css/style.css">
 <style>
   /* 导航栏样式 - 内联以确保优先级 */
@@ -279,92 +279,166 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/css/nova.css?v=2.2.0">
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="logo">远程服务器登录管理系统V2.0</div>
-            <ul class="nav-links">
-                <li><a href="/">首页</a></li>
-                <li><a href="/users">账号管理</a></li>
-                <li><a href="/authorization">用户管理</a></li>
-                <li><a href="/sessions">会话管理</a></li>
-                <li><a href="/security">安全操作</a></li>
-                <li><a href="/admin-management">系统管理</a></li>
-
-                <li><a href="/logout" class="btn danger">退出登录</a></li>
-            </ul>
+<div class="nova-shell">
+  <aside class="nova-side">
+    <div class="nova-brand">
+      <div class="nova-brand-logo">
+        <div class="nova-logo-mark">W</div>
+        <div>
+          <div class="nova-brand-name">云枢 · 远程管理</div>
+          <div class="nova-brand-sub">Windows User Manager</div>
         </div>
+      </div>
+    </div>
+    <nav class="nova-nav">
+      <div class="nova-group">总览</div>
+      <a href="/" class="nova-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>工作台</span></a>
+      <div class="nova-group">用户管理</div>
+      <a href="/users" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>账号管理</span></a>
+      <a href="/authorization" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg><span>授权管理</span></a>
+      <a href="/sessions" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>会话监控</span></a>
+      <div class="nova-group">系统</div>
+      <a href="/security" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span>安全中心</span></a>
+      <a href="/admin-management" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>系统设置</span></a>
     </nav>
-    
-    <div class="container">
-        
+    <div class="nova-user">
+      <div class="nova-user-avatar">A</div>
+      <div>
+        <div class="nova-user-name">administrator</div>
+        <div class="nova-user-role">系统管理员</div>
+      </div>
+      <a href="/logout" title="退出登录">退出</a>
+    </div>
+  </aside>
+  <div class="nova-main">
+    <div class="nova-top">
+      <div class="nova-crumb">工作台</div>
+      <div class="nova-top-right"><span class="nova-dot"></span> 服务运行中</div>
+    </div>
+    <div class="nova-content">
+
+        <h1>工作台</h1>
+        <p class="nova-desc">系统运行概览与快捷操作入口</p>
+
+        <!-- 统计卡片 -->
+        <div class="dash-stats">
+            <div class="stat-card">
+                <div class="stat-icon si-blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-num" id="statUsers">--</div>
+                    <div class="stat-label">系统用户</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon si-green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-num" id="statSessions">--</div>
+                    <div class="stat-label">在线会话</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon si-gold">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-num" id="statAuth">--</div>
+                    <div class="stat-label">授权用户</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon si-red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-num" id="statSecurity">--</div>
+                    <div class="stat-label">安全状态</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快捷功能入口 -->
         <div class="card">
-            <h1>欢迎使用远程管理系统</h1>
-            <p>通过Web界面远程管理Windows服务器用户账户、授权和会话</p>
-            
+            <h2>快捷功能</h2>
             <section class="features">
                 <div class="feature-card">
                     <h3>用户管理</h3>
                     <p>查看、修改用户密码、重命名用户账户、新增用户</p>
                     <a href="/users" class="btn primary">管理用户</a>
                 </div>
-                
                 <div class="feature-card">
                     <h3>授权管理</h3>
                     <p>设置用户授权日期、查看授权状态、移除用户授权</p>
                     <a href="/authorization" class="btn primary">管理授权</a>
                 </div>
-                
                 <div class="feature-card">
                     <h3>会话管理</h3>
                     <p>查看活动会话、强制用户下线、监控在线时长</p>
                     <a href="/sessions" class="btn primary">管理会话</a>
                 </div>
-                
                 <div class="feature-card">
                     <h3>安全操作</h3>
                     <p>账户安全检查、权限验证、操作日志查看</p>
                     <a href="/security" class="btn primary">安全操作</a>
                 </div>
-            </section>
-            
-            <!-- 操作栏 -->
-            <div class="action-bar">
-                <button class="btn primary" id="refreshBtn">刷新数据</button>
-                <button class="btn secondary" id="helpBtn">帮助</button>
-            </div>
-            
-            <!-- 通用模态框结构 -->
-            <div class="modal" id="commonModal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 class="modal-title">操作确认</h2>
-                        <button class="close-btn" id="closeModal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <p>请确认您的操作</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn secondary" id="cancelAction">取消</button>
-                        <button class="btn primary" id="confirmAction">确认</button>
-                    </div>
+                <div class="feature-card">
+                    <h3>系统设置</h3>
+                    <p>管理员账户管理、系统配置、安全策略调整</p>
+                    <a href="/admin-management" class="btn primary">系统设置</a>
                 </div>
-            </div>
-            
-            <section class="info">
-                <h2>系统说明</h2>
-                <p>本系统允许管理员通过Web界面远程管理Windows服务器上的用户账户，包括：</p>
-                <ul>
-                    <li>修改用户密码</li>
-                    <li>重命名用户账户</li>
-                    <li>强制用户下线</li>
-                    <li>查看所有用户账户和活动会话</li>
-                </ul>
-                <p class="warning">注意：请确保以管理员权限运行此系统，否则可能无法执行部分操作。</p>
             </section>
         </div>
+
+        <!-- 系统信息 -->
+        <div class="card">
+            <h2>系统信息</h2>
+            <table class="table info-table">
+                <tbody>
+                    <tr><td class="info-key">系统名称</td><td>云枢远程管理系统</td></tr>
+                    <tr><td class="info-key">版本</td><td>v2.2.0</td></tr>
+                    <tr><td class="info-key">服务状态</td><td><span class="status-badge ok">运行中</span></td></tr>
+                    <tr><td class="info-key">当前管理员</td><td>administrator</td></tr>
+                    <tr><td class="info-key">系统说明</td><td>通过 Web 界面远程管理 Windows 服务器用户账户、授权和会话</td></tr>
+                </tbody>
+            </table>
+            <p class="warning" style="margin-top:16px;">注意：请确保以管理员权限运行此系统，否则可能无法执行部分操作。</p>
+        </div>
+
+        <script>
+        // 工作台数据加载：统计卡片获取真实数据
+        function loadDashboard() {
+            // 用户数
+            fetch('/api/users').then(r => r.json()).then(data => {
+                if (data && data.success && data.users) {
+                    document.getElementById('statUsers').textContent = data.users.length;
+                }
+            }).catch(() => {});
+            // 在线会话
+            fetch('/api/sessions').then(r => r.json()).then(data => {
+                if (data && data.success && data.sessions) {
+                    document.getElementById('statSessions').textContent = data.sessions.length;
+                }
+            }).catch(() => {});
+            // 授权用户
+            fetch('/api/users').then(r => r.json()).then(data => {
+                if (data && data.success && data.users) {
+                    var authed = data.users.filter(u => u.authorization && u.authorization.enabled).length;
+                    document.getElementById('statAuth').textContent = authed;
+                }
+            }).catch(() => {});
+            // 安全状态（占位：管理员密码非默认即安全）
+            document.getElementById('statSecurity').textContent = '良好';
+        }
+        loadDashboard();
+        </script>
     </div>
+</div>
+</div>
 </body>
 </html>

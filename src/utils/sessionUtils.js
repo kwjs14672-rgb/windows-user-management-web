@@ -1,6 +1,11 @@
 const { spawnSync, spawn } = require('child_process');
 const logger = require('./logger');
 
+// 内存缓存：quser/query session 执行较慢，加 3 秒短缓存避免切页/刷新重复执行
+let sessionsCache = null;
+let sessionsCacheTime = 0;
+const SESSIONS_CACHE_TTL = 3000; // 3 秒
+
 // 格式化持续时间（秒）为易读格式
 function formatDuration(seconds) {
   if (!seconds || seconds < 0) return '0 秒';
@@ -20,7 +25,19 @@ function formatDuration(seconds) {
 }
 
 // 获取活动会话
-function getActiveSessions() {
+function getActiveSessions(forceRefresh) {
+  // 3 秒缓存：非强制刷新且缓存有效时直接返回
+  if (!forceRefresh && sessionsCache && Date.now() - sessionsCacheTime < SESSIONS_CACHE_TTL) {
+    return Promise.resolve(sessionsCache);
+  }
+  return fetchSessionsFromSystem().then(sessions => {
+    sessionsCache = sessions;
+    sessionsCacheTime = Date.now();
+    return sessions;
+  });
+}
+
+function fetchSessionsFromSystem() {
   return new Promise((resolve, reject) => {
     try {
       // 清除任何可能的缓存，确保每次都获取最新会话信息

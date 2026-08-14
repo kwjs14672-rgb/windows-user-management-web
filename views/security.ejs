@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安全操作 - 远程服务器登录管理系统V2.0</title>
+    <title>安全操作 - 云枢远程管理系统</title>
     <link rel="stylesheet" href="/css/style.css">
 <style>
   /* 导航栏样式 - 内联以确保优先级 */
@@ -642,32 +642,50 @@
             opacity: 1;
         }
     </style>
+    <link rel="stylesheet" href="/css/nova.css?v=2.2.0">
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="logo">远程服务器登录管理系统V2.0</div>
-            <ul class="nav-links">
-                <li><a href="/">首页</a></li>
-                <li><a href="/users">账号管理</a></li>
-                <li><a href="/authorization">用户管理</a></li>
-                <li><a href="/sessions">会话管理</a></li>
-                <li><a href="/security" class="active">安全操作</a></li>
-                <li><a href="/admin-management">系统管理</a></li>
-
-                <li><a href="/logout" class="btn danger">退出登录</a></li>
-            </ul>
+<div class="nova-shell">
+  <aside class="nova-side">
+    <div class="nova-brand">
+      <div class="nova-brand-logo">
+        <div class="nova-logo-mark">W</div>
+        <div>
+          <div class="nova-brand-name">云枢 · 远程管理</div>
+          <div class="nova-brand-sub">Windows User Manager</div>
         </div>
+      </div>
+    </div>
+    <nav class="nova-nav">
+      <div class="nova-group">总览</div>
+      <a href="/" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>工作台</span></a>
+      <div class="nova-group">用户管理</div>
+      <a href="/users" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>账号管理</span></a>
+      <a href="/authorization" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg><span>授权管理</span></a>
+      <a href="/sessions" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>会话监控</span></a>
+      <div class="nova-group">系统</div>
+      <a href="/security" class="nova-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span>安全中心</span></a>
+      <a href="/admin-management" class="nova-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>系统设置</span></a>
     </nav>
+    <div class="nova-user">
+      <div class="nova-user-avatar">A</div>
+      <div>
+        <div class="nova-user-name">administrator</div>
+        <div class="nova-user-role">系统管理员</div>
+      </div>
+      <a href="/logout" title="退出登录">退出</a>
+    </div>
+  </aside>
+  <div class="nova-main">
+    <div class="nova-top">
+      <div class="nova-crumb">系统 / <b>安全中心</b></div>
+      <div class="nova-top-right"><span class="nova-dot"></span> 服务运行中</div>
+    </div>
+    <div class="nova-content">
     
-    <div class="container">
+        <h1>安全操作中心</h1>
+        <p>全面保护您的服务器安全，执行各项安全管理操作</p>
         <div class="card">
-            <!-- 卡片头部 -->
-            <div class="card-header">
-                <h1><i class="fas fa-shield-alt"></i> 安全操作中心</h1>
-                <p>全面保护您的服务器安全，执行各项安全管理操作</p>
-            </div>
             
             <!-- 安全功能网格 -->
             <div class="security-features">
@@ -709,6 +727,14 @@
                 </div>
                 
                 <div class="security-card">
+                    <h3><i class="fas fa-power-off"></i> 账户权限设置</h3>
+                    <p>罗列每个账户，设置「电源关机是否可用」权限，控制账户的电源关机操作</p>
+                    <button id="manageAccountPerms" class="btn primary">
+                        <i class="fas fa-users-cog"></i> 账户权限管理
+                    </button>
+                </div>
+                
+                <div class="security-card">
                     <h3><i class="fas fa-user-clock"></i> 登录会话有效期设置</h3>
                     <p>自定义登录会话的过期时间，控制用户登录后保持登录状态的时长</p>
                     <div class="interval-setting">
@@ -733,6 +759,34 @@
         </div>
     </div>
 
+    <!-- 账户权限设置模态框 -->
+    <div id="accountPermsModal" class="modal">
+        <div class="modal-content" style="max-width: 720px;">
+            <div class="modal-header">
+                <h3>账户权限设置</h3>
+                <span class="close-button" onclick="closeAccountPermsModal()">&times;</span>
+            </div>
+            <p style="color:#64748b;font-size:13px;margin-bottom:14px;">设置每个账户「电源关机是否可用」：开启后该账户拥有电源关机权限，关闭后不可执行关机操作。</p>
+            <div class="table-wrapper" style="max-height: 420px; overflow-y: auto;">
+                <table class="table" id="accountPermsTable">
+                    <thead>
+                        <tr>
+                            <th>账户名</th>
+                            <th>状态</th>
+                            <th>电源关机可用</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accountPermsBody">
+                        <tr><td colspan="3">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-actions" style="margin-top:16px;">
+                <button type="button" class="btn secondary" onclick="closeAccountPermsModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
@@ -742,11 +796,95 @@
             document.getElementById('viewLogs').addEventListener('click', viewLogs);
             document.getElementById('saveInterval').addEventListener('click', saveCheckInterval);
             document.getElementById('saveSessionTimeout').addEventListener('click', saveSessionTimeout);
+            document.getElementById('manageAccountPerms').addEventListener('click', openAccountPermsModal);
             
             // 加载当前的设置
             loadCurrentCheckInterval();
             loadCurrentSessionTimeout();
         });
+        
+        // ===== 账户权限设置（电源关机可用）=====
+        function openAccountPermsModal() {
+            const modal = document.getElementById('accountPermsModal');
+            modal.style.display = 'block';
+            setTimeout(() => modal.classList.add('show'), 10);
+            loadAccountPerms();
+        }
+        
+        function closeAccountPermsModal() {
+            const modal = document.getElementById('accountPermsModal');
+            modal.classList.remove('show');
+            setTimeout(() => { modal.style.display = 'none'; }, 200);
+        }
+        
+        function loadAccountPerms() {
+            const tbody = document.getElementById('accountPermsBody');
+            tbody.innerHTML = '<tr><td colspan="3">加载中...</td></tr>';
+            fetch('/api/users')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success || !data.users) {
+                        tbody.innerHTML = '<tr><td colspan="3">加载失败</td></tr>';
+                        return;
+                    }
+                    renderAccountPerms(data.users);
+                })
+                .catch(() => {
+                    tbody.innerHTML = '<tr><td colspan="3">加载失败</td></tr>';
+                });
+        }
+        
+        function renderAccountPerms(users) {
+            const tbody = document.getElementById('accountPermsBody');
+            tbody.innerHTML = '';
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                const stateText = user.disabled ? '已禁用' : '启用';
+                const stateColor = user.disabled ? '#dc2626' : '#16a34a';
+                const permOn = user.shutdownPerm !== false; // 默认可用
+                tr.innerHTML = `
+                    <td style="font-weight:600;">${user.name}</td>
+                    <td><span style="color:${stateColor};font-weight:500;">${stateText}</span></td>
+                    <td>
+                        <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+                            <input type="checkbox" ${permOn ? 'checked' : ''} onchange="setAccountShutdownPerm('${user.name}', this.checked)" style="width:auto;">
+                            <span>${permOn ? '可用' : '不可用'}</span>
+                        </label>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function setAccountShutdownPerm(username, enabled) {
+            fetch('/api/security/account-shutdown-perm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, enabled: enabled })
+            })
+            .then(r => r.json())
+            .then(data => {
+                // 更新开关状态文字
+                const rows = document.querySelectorAll('#accountPermsBody tr');
+                rows.forEach(row => {
+                    if (row.textContent.includes(username)) {
+                        const span = row.querySelector('span');
+                        if (span) span.textContent = enabled ? '可用' : '不可用';
+                    }
+                });
+                const msg = document.createElement('div');
+                msg.className = 'message ' + (data.success ? 'success' : 'error');
+                msg.textContent = data.message || (data.success ? '设置成功' : '设置失败');
+                msg.style.marginTop = '10px';
+                const modal = document.getElementById('accountPermsModal');
+                const oldMsg = modal.querySelector('.perm-msg');
+                if (oldMsg) oldMsg.remove();
+                msg.classList.add('perm-msg');
+                modal.querySelector('.form-actions').before(msg);
+                setTimeout(() => msg.remove(), 3000);
+            })
+            .catch(() => {});
+        }
         
         // 加载当前的检查间隔设置
         function loadCurrentCheckInterval() {
@@ -878,13 +1016,13 @@
                         if (data.recentLogins && data.recentLogins.length > 0) {
                             html += '<div class="security-section">';
                             html += '<h4><i class="fas fa-sign-in-alt"></i> 最近登录活动</h4>';
-                            html += '<table class="table">';
+                            html += '<div class="table-container"><table class="table">';
                             html += '<thead><tr><th>用户名</th><th>登录时间</th><th>IP地址</th></tr></thead>';
                             html += '<tbody>';
                             data.recentLogins.forEach(login => {
                                 html += `<tr><td><i class="fas fa-user"></i> ${login.username}</td><td><i class="fas fa-clock"></i> ${login.time}</td><td><i class="fas fa-globe"></i> ${login.ip || '本地登录'}</td></tr>`;
                             });
-                            html += '</tbody></table>';
+                            html += '</tbody></table></div>';
                             html += '</div>';
                         }
                         
@@ -1010,7 +1148,7 @@
                             
                             html += '<div class="security-section">';
                             html += '<div style="overflow-x: auto;">';
-                            html += '<table class="table">';
+                            html += '<div class="table-container"><table class="table">';
                             html += '<thead><tr><th>时间</th><th>操作类型</th><th>操作内容</th><th>结果</th></tr></thead>';
                             html += '<tbody>';
                             data.logs.forEach(log => {
@@ -1025,7 +1163,7 @@
                                     <td class="${resultClass}"><i class="fas fa-${resultIcon}"></i> ${log.success ? '成功' : '失败'}</td>
                                 </tr>`;
                             });
-                            html += '</tbody></table>';
+                            html += '</tbody></table></div>';
                             html += '</div>';
                             html += '</div>';
                         } else {
@@ -1106,5 +1244,7 @@
             }, 3000);
         }
     </script>
+</div>
+</div>
 </body>
 </html>

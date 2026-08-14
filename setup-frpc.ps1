@@ -1,4 +1,4 @@
-# Windows 用户远程管理系统 - frp 客户端自动配置脚本
+﻿# Windows 用户远程管理系统 - frp 客户端自动配置脚本
 # 由安装程序调用：自动生成 frpc.toml、注册开机自启、立即启动
 # 用法: powershell -ExecutionPolicy Bypass -File setup-frpc.ps1 -ServerIP "公网服务器IP" -ServerPort 7000 -LocalPort 8080
 # 说明: 不传 -Token 时自动生成随机 token（与 frps.toml 中配置的 token 需保持一致）

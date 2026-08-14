@@ -23,3 +23,10 @@ test_verify.js
 # ç³»ç»Ÿæ–‡ä»¶
 .DS_Store
 Thumbs.db
+
+# ±¾µØ±àÒëÅäÖÃ£¨º¬·şÎñÆ÷ IP/token£¬ÎğÌá½»£©
+build-with-defaults.bat
+
+# è¿è¡Œæ—¶é…ç½®ç›®å½•ï¼ˆå¯†ç /token/æˆæƒæ•°æ®ï¼Œä¸€å¾‹ä¸æäº¤ï¼‰
+config/
+config/*.json

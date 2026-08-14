@@ -1,8 +1,24 @@
 const { spawnSync, execSync } = require('child_process');
 const logger = require('./logger');
 
-// 工具函数：获取用户列表
-function getUsersList() {
+// 内存缓存：wmic/net user 执行很慢（1-3秒），加短缓存避免每次切页重复执行
+let usersCache = null;
+let usersCacheTime = 0;
+const USERS_CACHE_TTL = 5000; // 5 秒
+
+// 工具函数：获取用户列表（带 5 秒缓存）
+function getUsersList(forceRefresh) {
+  if (!forceRefresh && usersCache && Date.now() - usersCacheTime < USERS_CACHE_TTL) {
+    return Promise.resolve(usersCache);
+  }
+  return fetchUsersFromSystem().then(users => {
+    usersCache = users;
+    usersCacheTime = Date.now();
+    return users;
+  });
+}
+
+function fetchUsersFromSystem() {
   return new Promise((resolve, reject) => {
     try {
       // 确保iconv-lite可用，如果未加载则尝试动态导入
@@ -230,6 +246,12 @@ function getUsersList() {
       reject(new Error('获取用户列表失败: ' + error.message));
     }
   });
+}
+
+// 写操作后调用：立即失效缓存，保证下次读取最新数据
+function invalidateUsersCache() {
+  usersCache = null;
+  usersCacheTime = 0;
 }
 
 // 工具函数：修改用户密码
@@ -622,6 +644,7 @@ function updateUserInfo(username, fullName, description) {
 
 module.exports = {
   getUsersList,
+  invalidateUsersCache,
   changeUserPassword,
   addUser,
   renameUser,

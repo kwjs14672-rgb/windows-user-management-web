@@ -1,0 +1,896 @@
+/* ============================================================================
+   NOVA 原创主题 v2.2.0
+   设计语言：深空蓝黑渐变侧边栏 + 电光青/琥珀金点缀 + 玻璃卡片工作区
+   布局：左侧固定导航 + 顶部工具条 + 右侧内容区（与原版完全不同）
+   ============================================================================ */
+
+:root {
+  --nova-bg: #f3f5f9;
+  --nova-side-1: #0b1026;
+  --nova-side-2: #131c3d;
+  --nova-accent: #22d3ee;
+  --nova-gold: #f5b93e;
+  --nova-text: #1e293b;
+  --nova-text-2: #64748b;
+  --nova-card: #ffffff;
+  --nova-border: #e6eaf2;
+  --nova-blue: #2563eb;
+  --nova-blue-d: #1d4ed8;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh;
+}
+
+body {
+  background: var(--nova-bg) !important;
+  color: var(--nova-text) !important;
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Segoe UI', Arial, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+/* ============================================================================
+   整体框架：侧边栏 + 主区
+   ============================================================================ */
+.nova-shell {
+  display: flex !important;
+  min-height: 100vh !important;
+}
+
+/* ---------- 侧边栏 ---------- */
+.nova-side {
+  width: 150px !important;
+  flex-shrink: 0 !important;
+  background: linear-gradient(180deg, var(--nova-side-1) 0%, var(--nova-side-2) 70%, #182450 100%) !important;
+  color: #fff !important;
+  display: flex !important;
+  flex-direction: column !important;
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important; /* 禁止横向滚动，防止菜单被挤掉 */
+  box-shadow: 4px 0 24px rgba(9, 14, 38, 0.25) !important;
+  z-index: 100 !important;
+}
+
+/* 品牌区（竖排：图标上、名称下） */
+.nova-brand {
+  padding: 22px 10px 16px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+  text-align: center !important;
+}
+
+.nova-brand-logo {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.nova-logo-mark {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, var(--nova-accent), var(--nova-blue)) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 800 !important;
+  font-size: 18px !important;
+  color: #fff !important;
+  box-shadow: 0 6px 16px rgba(34, 211, 238, 0.35) !important;
+  letter-spacing: 0 !important;
+}
+
+.nova-brand-name {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  color: #fff !important;
+  line-height: 1.3 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 124px !important;
+}
+
+.nova-brand-sub {
+  font-size: 10px !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+  margin-top: 1px !important;
+}
+
+/* 菜单分组（一级标题：美化 + 层级突出） */
+.nova-group {
+  font-size: 15px !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  padding: 20px 6px 10px !important;
+  letter-spacing: 1px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+/* 一级标题：左右渐变分隔线装饰，突出层级 */
+.nova-group::before,
+.nova-group::after {
+  content: "" !important;
+  flex: 1 !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25)) !important;
+  max-width: 16px !important;
+}
+
+.nova-group::after {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.25), transparent) !important;
+}
+
+.nova-group:first-of-type {
+  padding-top: 12px !important;
+}
+
+.nova-nav {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important; /* 菜单必须纵向排列 */
+  padding: 4px 10px 12px !important;
+}
+
+/* 菜单项：图标在上、文字在下（竖排小方块） */
+.nova-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  text-decoration: none !important;
+  padding: 12px 4px !important;
+  border-radius: 10px !important;
+  margin: 3px 0 !important;
+  font-size: 13px !important;
+  transition: all 0.18s ease !important;
+  border-left: none !important;
+  background: transparent !important;
+  text-align: center !important;
+  line-height: 1.3 !important;
+}
+
+.nova-item svg {
+  width: 22px !important;
+  height: 22px !important;
+  flex-shrink: 0 !important;
+  opacity: 0.85 !important;
+  transition: all 0.18s ease !important;
+  display: block !important;
+}
+
+.nova-item span {
+  display: block !important;
+  font-size: 13px !important;
+  white-space: nowrap !important;
+}
+
+.nova-item:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #fff !important;
+}
+
+/* 选中态：位置/形式保持竖排不变，底纹改为渐变高亮 */
+.nova-item.active {
+  background: linear-gradient(135deg, #e8f4ff 0%, #ffffff 60%, #f0f8ff 100%) !important;
+  color: #0b3d91 !important;
+  font-weight: 600 !important;
+  border-left: none !important;
+  box-shadow: 0 4px 14px rgba(11, 61, 145, 0.22) !important;
+}
+
+.nova-item.active svg {
+  opacity: 1 !important;
+  color: #0b3d91 !important;
+}
+
+.nova-item.active span {
+  font-weight: 600 !important;
+  color: #0b3d91 !important;
+}
+
+/* 侧边栏底部用户卡（竖排：头像上、名字下、退出最下） */
+.nova-user {
+  padding: 12px 8px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+  margin: 8px !important;
+  margin-top: 0 !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 11px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  text-align: center !important;
+}
+
+.nova-user-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, var(--nova-gold), #f97316) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+  flex-shrink: 0 !important;
+}
+
+.nova-user-name {
+  font-size: 12px !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 88px !important;
+}
+
+.nova-user-role {
+  font-size: 10px !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.nova-user a {
+  color: rgba(255, 255, 255, 0.5) !important;
+  text-decoration: none !important;
+  font-size: 12px !important;
+  flex-shrink: 0 !important;
+  margin-left: 0 !important;
+}
+
+.nova-user a:hover { color: #f87171 !important; }
+
+/* ---------- 主区 ---------- */
+.nova-main {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* 顶部工具条 */
+.nova-top {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(10px) !important;
+  border-bottom: 1px solid var(--nova-border) !important;
+  padding: 13px 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+}
+
+.nova-crumb {
+  font-size: 13px !important;
+  color: var(--nova-text-2) !important;
+}
+
+.nova-crumb b {
+  color: var(--nova-text) !important;
+  font-weight: 600 !important;
+}
+
+.nova-top-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 13px !important;
+  color: var(--nova-text-2) !important;
+}
+
+.nova-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: #22c55e !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18) !important;
+  display: inline-block !important;
+}
+
+/* 内容区 */
+.nova-content {
+  padding: 26px 30px 40px !important;
+  flex: 1 !important;
+}
+
+.nova-content > h1 {
+  font-size: 21px !important;
+  font-weight: 700 !important;
+  color: var(--nova-text) !important;
+  margin: 0 0 4px !important;
+  letter-spacing: 0.3px !important;
+}
+
+.nova-content > .nova-desc {
+  color: var(--nova-text-2) !important;
+  font-size: 13px !important;
+  margin: 0 0 22px !important;
+}
+
+/* ============================================================================
+   卡片（玻璃拟态 + 渐变顶条）
+   ============================================================================ */
+.card {
+  background: var(--nova-card) !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05) !important;
+  padding: 24px 26px !important;
+  margin-bottom: 20px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.card::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, var(--nova-blue), var(--nova-accent)) !important;
+}
+
+.card h2 {
+  font-size: 15.5px !important;
+  font-weight: 700 !important;
+  color: var(--nova-text) !important;
+  margin: 0 0 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.card h2::before {
+  content: "" !important;
+  width: 4px !important;
+  height: 15px !important;
+  border-radius: 2px !important;
+  background: linear-gradient(180deg, var(--nova-blue), var(--nova-accent)) !important;
+  display: inline-block !important;
+}
+
+/* ============================================================================
+   表格（圆角表头、胶囊状态）
+   ============================================================================ */
+.table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  font-size: 13.5px !important;
+}
+
+.table th {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  font-weight: 600 !important;
+  padding: 11px 14px !important;
+  text-align: left !important;
+  border-bottom: 1px solid var(--nova-border) !important;
+  white-space: nowrap !important;
+}
+
+.table th:first-child { border-radius: 8px 0 0 0 !important; }
+.table th:last-child { border-radius: 0 8px 0 0 !important; }
+
+.table td {
+  padding: 12px 14px !important;
+  border-bottom: 1px solid #eef1f6 !important;
+  vertical-align: middle !important;
+}
+
+.table tbody tr {
+  transition: background 0.15s !important;
+}
+
+.table tbody tr:hover td {
+  background: #f6f9ff !important;
+}
+
+.table tbody tr:last-child td { border-bottom: none !important; }
+
+/* 状态胶囊 */
+.badge, .status-badge {
+  display: inline-block !important;
+  padding: 3px 12px !important;
+  border-radius: 20px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+}
+
+/* ============================================================================
+   按钮
+   ============================================================================ */
+.btn {
+  border-radius: 8px !important;
+  font-size: 13.5px !important;
+  border: none !important;
+  transition: all 0.18s ease !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+.btn.primary, .btn-primary {
+  background: linear-gradient(135deg, var(--nova-blue), var(--nova-accent)) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.btn.primary:hover, .btn-primary:hover {
+  background: linear-gradient(135deg, var(--nova-blue-d), #0ea5c4) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3) !important;
+}
+
+.btn.success { background: #16a34a !important; color: #fff !important; }
+.btn.success:hover { background: #15803d !important; transform: translateY(-1px) !important; }
+
+.btn.danger { background: #ef4444 !important; color: #fff !important; }
+.btn.danger:hover { background: #dc2626 !important; transform: translateY(-1px) !important; }
+
+.btn.warning { background: #f59e0b !important; color: #fff !important; }
+.btn.warning:hover { background: #d97706 !important; }
+
+.btn.secondary {
+  background: #fff !important;
+  color: #475569 !important;
+  border: 1px solid #d6dee9 !important;
+}
+.btn.secondary:hover { background: #f1f5f9 !important; transform: none !important; }
+
+.table td .action-btn, .table td .btn {
+  margin: 2px !important;
+  min-width: 60px !important;
+  padding: 6px 12px !important;
+  font-size: 12.5px !important;
+  border-radius: 7px !important;
+}
+
+/* ============================================================================
+   表单
+   ============================================================================ */
+.form-group label {
+  font-weight: 500 !important;
+  color: var(--nova-text) !important;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea,
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select,
+textarea {
+  border: 1px solid #d3dce8 !important;
+  border-radius: 8px !important;
+  padding: 9px 12px !important;
+  font-size: 13.5px !important;
+  transition: all 0.2s !important;
+  background: #fff !important;
+}
+
+.form-group input:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: var(--nova-blue) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.13) !important;
+}
+
+/* ============================================================================
+   模态框
+   ============================================================================ */
+.modal-content {
+  border-radius: 14px !important;
+  border: none !important;
+  box-shadow: 0 24px 64px rgba(10, 20, 45, 0.3) !important;
+  padding: 24px !important;
+}
+
+.modal-title {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: var(--nova-text) !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--nova-border) !important;
+  padding-bottom: 14px !important;
+  margin-bottom: 16px !important;
+}
+
+/* ============================================================================
+   首页功能卡
+   ============================================================================ */
+.features {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
+  gap: 16px !important;
+  margin: 22px 0 !important;
+}
+
+.feature-card {
+  background: #fff !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: 14px !important;
+  padding: 24px 20px !important;
+  text-align: center !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
+  transition: all 0.22s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.feature-card::after {
+  content: "" !important;
+  position: absolute !important;
+  top: -40px !important;
+  right: -40px !important;
+  width: 90px !important;
+  height: 90px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.14), transparent 70%) !important;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 14px 32px rgba(20, 40, 90, 0.14) !important;
+  border-color: rgba(37, 99, 235, 0.35) !important;
+}
+
+.feature-card h3 {
+  color: var(--nova-text) !important;
+  font-size: 15px !important;
+  margin-bottom: 8px !important;
+  font-weight: 700 !important;
+}
+
+.feature-card p {
+  color: var(--nova-text-2) !important;
+  font-size: 12.5px !important;
+  margin-bottom: 14px !important;
+}
+
+/* ============================================================================
+   登录页（分屏：左品牌 + 右表单）
+   ============================================================================ */
+body:has(.login-container) {
+  background: var(--nova-side-1) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  position: relative !important;
+}
+
+body:has(.login-container)::before {
+  content: "" !important;
+  position: fixed !important;
+  inset: 0 !important;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 20%, rgba(34, 211, 238, 0.16), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 80%, rgba(245, 185, 62, 0.12), transparent 60%),
+    linear-gradient(135deg, #0b1026, #16204a 55%, #0f2a52) !important;
+}
+
+.login-container {
+  position: relative !important;
+  z-index: 1 !important;
+  width: 100% !important;
+  max-width: 400px !important;
+  padding: 20px !important;
+  margin: 0 !important;
+}
+
+.login-box {
+  background: rgba(255, 255, 255, 0.97) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 30px 80px rgba(4, 8, 25, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  padding: 38px 34px !important;
+}
+
+.login-header {
+  text-align: center !important;
+  margin-bottom: 26px !important;
+}
+
+.login-header h1 {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: #111827 !important;
+  margin-bottom: 6px !important;
+  letter-spacing: 0.5px !important;
+}
+
+.login-header p {
+  color: var(--nova-text-2) !important;
+  font-size: 13px !important;
+}
+
+.login-box .btn {
+  width: 100% !important;
+  height: 44px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  margin-top: 8px !important;
+  background: linear-gradient(135deg, #2563eb, #22d3ee) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+}
+
+.login-box .btn:hover {
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+.login-footer {
+  text-align: center !important;
+  color: rgba(255, 255, 255, 0.55) !important;
+  margin-top: 22px !important;
+  font-size: 12px !important;
+}
+
+/* ============================================================================
+   其他
+   ============================================================================ */
+a { color: var(--nova-blue) !important; }
+
+.info ul { padding-left: 20px !important; }
+
+.warning {
+  color: #92400e !important;
+  background: #fffbeb !important;
+  border: 1px solid #fde68a !important;
+  border-radius: 9px !important;
+  padding: 10px 14px !important;
+}
+
+.message { border-radius: 8px !important; font-size: 13.5px !important; }
+
+/* 搜索框 */
+.search-container input {
+  border-radius: 8px 0 0 8px !important;
+  border: 1px solid #d3dce8 !important;
+}
+
+.search-container button {
+  border-radius: 0 8px 8px 0 !important;
+  background: linear-gradient(135deg, var(--nova-blue), var(--nova-accent)) !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #c3cfdd; border-radius: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* 响应式：窄屏时侧边栏更窄，隐藏文字只留图标 */
+@media (max-width: 900px) {
+  .nova-side { width: 72px !important; }
+  .nova-brand { padding: 16px 6px 10px !important; }
+  .nova-brand-name, .nova-brand-sub, .nova-group, .nova-item span, .nova-user-name, .nova-user-role, .nova-user a { display: none !important; }
+  .nova-brand-logo { justify-content: center !important; }
+  .nova-item { justify-content: center !important; padding: 12px 4px !important; }
+  .nova-user { justify-content: center !important; }
+  .nova-content { padding: 18px 16px !important; }
+  .nova-top { padding: 11px 16px !important; }
+}
+
+/* ============================================================================
+   工作台统计卡片（追加）
+   ============================================================================ */
+.dash-stats {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+  gap: 16px !important;
+  margin-bottom: 20px !important;
+}
+
+.stat-card {
+  background: #fff !important;
+  border: 1px solid var(--nova-border) !important;
+  border-radius: 14px !important;
+  padding: 20px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
+  transition: all 0.2s ease !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 24px rgba(20, 40, 90, 0.12) !important;
+}
+
+.stat-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.stat-icon svg {
+  width: 24px !important;
+  height: 24px !important;
+  color: #fff !important;
+}
+
+.si-blue { background: linear-gradient(135deg, #3b82f6, #60a5fa) !important; }
+.si-green { background: linear-gradient(135deg, #10b981, #34d399) !important; }
+.si-gold { background: linear-gradient(135deg, #f59e0b, #fbbf24) !important; }
+.si-red { background: linear-gradient(135deg, #ef4444, #f87171) !important; }
+
+.stat-num {
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  color: var(--nova-text) !important;
+  line-height: 1.2 !important;
+}
+
+.stat-label {
+  font-size: 13px !important;
+  color: var(--nova-text-2) !important;
+  margin-top: 2px !important;
+}
+
+.info-table td {
+  border-bottom: 1px solid #eef1f6 !important;
+  padding: 12px 14px !important;
+}
+
+.info-table .info-key {
+  width: 140px !important;
+  font-weight: 600 !important;
+  color: var(--nova-text-2) !important;
+  background: #f8fafc !important;
+}
+
+.status-badge.ok {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  padding: 3px 12px !important;
+  border-radius: 20px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+/* ============================================================================
+   表格容器：窄屏横向滚动（避免列被压缩看不全）
+   ============================================================================ */
+.table-container,
+.table-wrapper,
+.table-responsive {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.table-container .table,
+.table-wrapper .table,
+.table-responsive .table {
+  min-width: 640px !important; /* 保持表格完整列宽，窄屏时横向滑动 */
+}
+
+/* ============================================================================
+   手机端适配（<768px）
+   ============================================================================ */
+@media (max-width: 768px) {
+  .nova-side {
+    width: 64px !important;
+  }
+  .nova-brand {
+    padding: 14px 4px 10px !important;
+  }
+  .nova-brand-name,
+  .nova-brand-sub,
+  .nova-group,
+  .nova-item span,
+  .nova-user-name,
+  .nova-user-role,
+  .nova-user a {
+    display: none !important;
+  }
+  .nova-logo-mark {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 15px !important;
+  }
+  .nova-item {
+    padding: 12px 2px !important;
+  }
+  .nova-user {
+    padding: 10px 4px !important;
+  }
+  .nova-content {
+    padding: 14px 12px 30px !important;
+  }
+  .nova-top {
+    padding: 10px 12px !important;
+  }
+  .nova-crumb {
+    font-size: 12px !important;
+  }
+  .card {
+    padding: 16px 14px !important;
+  }
+  .dash-stats {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .stat-card {
+    padding: 14px 12px !important;
+    gap: 10px !important;
+  }
+  .stat-icon {
+    width: 38px !important;
+    height: 38px !important;
+  }
+  .stat-icon svg {
+    width: 19px !important;
+    height: 19px !important;
+  }
+  .stat-num {
+    font-size: 20px !important;
+  }
+  .stat-label {
+    font-size: 11px !important;
+  }
+  .features {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .feature-card {
+    padding: 16px 12px !important;
+  }
+  .feature-card h3 {
+    font-size: 14px !important;
+  }
+  .feature-card p {
+    font-size: 11px !important;
+  }
+  .btn {
+    padding: 8px 12px !important;
+    font-size: 12.5px !important;
+  }
+  h1 {
+    font-size: 18px !important;
+  }
+  .info-table .info-key {
+    width: 90px !important;
+  }
+}
