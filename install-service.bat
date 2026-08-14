@@ -1,9 +1,9 @@
 @echo off
-rem æ³¨å†Œ Windows ç”¨æˆ·è¿œç¨‹ç®¡ç†ç³»ç»Ÿä¸ºç³»ç»ŸæœåŠ¡
+rem ×¢²á Windows ÓÃ»§Ô¶³Ì¹ÜÀíÏµÍ³ÎªÏµÍ³·þÎñ
 set SERVICE_NAME=WindowsUserManager
 set APP_EXE=%~dp0windows-user-management-web.exe
 
-rem å¦‚æžœæœåŠ¡å·²å­˜åœ¨ï¼Œå…ˆåˆ é™¤
+rem Èç¹û·þÎñÒÑ´æÔÚ£¬ÏÈÉ¾³ý
 sc query %SERVICE_NAME% >nul 2>&1
 if %errorlevel%==0 (
   sc stop %SERVICE_NAME% >nul 2>&1
@@ -11,10 +11,10 @@ if %errorlevel%==0 (
   timeout /t 2 /nobreak >nul
 )
 
-rem åˆ›å»ºæœåŠ¡ï¼ˆè‡ªåŠ¨å¯åŠ¨ï¼‰
+rem ´´½¨·þÎñ£¨×Ô¶¯Æô¶¯£©
 sc create %SERVICE_NAME% start= auto binPath= "%APP_EXE%" DisplayName= "Windows User Remote Management" obj= LocalSystem
 
-rem å¯åŠ¨æœåŠ¡
+rem Æô¶¯·þÎñ
 sc start %SERVICE_NAME% >nul 2>&1
 
 echo Service installed: %SERVICE_NAME%
