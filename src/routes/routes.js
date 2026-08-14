@@ -1,9 +1,12 @@
 ﻿const logger = require('../utils/logger');
 const crypto = require('crypto');
+const path = require('path');
+const fs = require('fs');
+const { CONFIG_DIR } = require('../utils/runtimePaths');
 const { generateCSRFToken, validatePasswordStrength } = require('../utils/passwordUtils');
 const { getAdminConfig, updateAdminPassword, ADMIN_CONFIG_PATH } = require('../config/adminConfig');
 const { getUserAuthorizations, saveUserAuthorization, disableUserAuthorization, enableUserAuthorization, isUserAuthorized, getAuthorizationCheckInterval } = require('../config/authorization');
-const { getUsersList, changeUserPassword, addUser, renameUser, updateUserInfo } = require('../utils/userUtils');
+const { getUsersList, changeUserPassword, addUser, renameUser, updateUserInfo, invalidateUsersCache } = require('../utils/userUtils');
 const { getActiveSessions, disconnectUser, logoffUser, sendMessageToUser, formatDuration } = require('../utils/sessionUtils');
 
 // 导出路由设置函数
@@ -387,9 +390,9 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
     res.redirect('/login');
   });
 
-  // 主页路由（现在会被认证中间件重定向）
+  // 主页路由：渲染工作台
   app.get('/', (req, res) => {
-    res.redirect('/login');
+    res.render('index');
   });
 
   // 用户管理页面
@@ -500,6 +503,7 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
       }
       
       addUser(username, password, fullName, description, isAdmin);
+      invalidateUsersCache();
       res.json({ success: true, message: `用户 ${username} 已成功创建` });
     } catch (error) {
       res.json({ success: false, message: error.message });
@@ -515,6 +519,7 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
       }
       
       renameUser(oldUsername, newUsername);
+      invalidateUsersCache();
       res.json({ success: true, message: `用户 ${oldUsername} 已成功重命名为 ${newUsername}` });
     } catch (error) {
       res.json({ success: false, message: error.message });
@@ -530,6 +535,7 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
       }
       
       updateUserInfo(username, fullName, description);
+      invalidateUsersCache();
       res.json({ success: true, message: `用户 ${username} 的信息已成功更新` });
     } catch (error) {
       res.json({ success: false, message: error.message });
@@ -548,6 +554,19 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
           // 获取授权信息
           const authorizations = getUserAuthorizations();
           
+          // 获取账户权限（电源关机可用性）
+          let accountPerms = {};
+          try {
+            const permsPath = path.join(CONFIG_DIR, 'account_perms.json');
+            if (fs.existsSync(permsPath)) {
+              const raw = fs.readFileSync(permsPath, 'utf8').replace(/^\uFEFF/, '');
+              const data = JSON.parse(raw);
+              accountPerms = data.perms || {};
+            }
+          } catch (permError) {
+            logger.warn('读取账户权限配置失败:', permError.message);
+          }
+          
           // 合并用户信息和授权信息
           const usersWithAuth = users.map(user => {
             const auth = authorizations[user.name];
@@ -556,7 +575,8 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
               ...user,
               authorization: auth || null,
               isAuthorized: authCheck.authorized,
-              authorizationStatus: authCheck.reason
+              authorizationStatus: authCheck.reason,
+              shutdownPerm: accountPerms[user.name] !== false // 默认可用
             };
           });
           
@@ -608,6 +628,7 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
         spawnSync('net', ['user', username, newPassword], { stdio: 'pipe' });
         
         logger.info(`用户 ${username} 的密码修改成功`);
+        invalidateUsersCache();
         res.json({ success: true, message: `用户 ${username} 的密码修改成功` });
       } catch (error) {
         logger.error(`修改用户 ${username} 密码失败:`, error.message);
