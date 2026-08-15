@@ -369,7 +369,7 @@
             <section class="features">
                 <div class="feature-card">
                     <h3>用户管理</h3>
-                    <p>查看、修改用户密码、重命名用户账户、新增用户</p>
+                    <p>查看、修改用户密码、重命名用户账户、新增账号</p>
                     <a href="/users" class="btn primary">管理用户</a>
                 </div>
                 <div class="feature-card">
@@ -411,25 +411,23 @@
         </div>
 
         <script>
-        // 工作台数据加载：统计卡片获取真实数据
+        // 工作台数据加载：统计卡片获取真实数据（合并为一次请求，提速）
         function loadDashboard() {
-            // 用户数
-            fetch('/api/users').then(r => r.json()).then(data => {
-                if (data && data.success && data.users) {
-                    document.getElementById('statUsers').textContent = data.users.length;
-                }
-            }).catch(() => {});
-            // 在线会话
-            fetch('/api/sessions').then(r => r.json()).then(data => {
-                if (data && data.success && data.sessions) {
-                    document.getElementById('statSessions').textContent = data.sessions.length;
-                }
-            }).catch(() => {});
-            // 授权用户
-            fetch('/api/users').then(r => r.json()).then(data => {
-                if (data && data.success && data.users) {
-                    var authed = data.users.filter(u => u.authorization && u.authorization.enabled).length;
+            // 一次性并发请求用户数和在线会话，避免重复请求
+            Promise.all([
+                fetch('/api/users').then(r => r.json()).catch(() => null),
+                fetch('/api/sessions').then(r => r.json()).catch(() => null)
+            ]).then(([userData, sessionData]) => {
+                // 用户数
+                if (userData && userData.success && userData.users) {
+                    document.getElementById('statUsers').textContent = userData.users.length;
+                    // 授权用户：有授权记录且未禁用且当前在有效期内（与授权管理页一致）
+                    var authed = userData.users.filter(u => u.authorization && !(u.authorization.metadata && u.authorization.metadata.disabled) && u.isAuthorized).length;
                     document.getElementById('statAuth').textContent = authed;
+                }
+                // 在线会话
+                if (sessionData && sessionData.success && sessionData.sessions) {
+                    document.getElementById('statSessions').textContent = sessionData.sessions.length;
                 }
             }).catch(() => {});
             // 安全状态（占位：管理员密码非默认即安全）

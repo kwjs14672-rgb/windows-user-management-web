@@ -1,28 +1,77 @@
 const { spawnSync, execSync } = require('child_process');
 const logger = require('./logger');
 
-// 内存缓存：wmic/net user 执行很慢（1-3秒），加短缓存避免每次切页重复执行
+// 内存缓存：wmic/net user 执行很慢（1-3秒），加缓存避免每次切页重复执行
 let usersCache = null;
 let usersCacheTime = 0;
-const USERS_CACHE_TTL = 5000; // 5 秒
+let usersFetching = null; // 进行中的抓取（防止并发重复执行）
+let usersGen = 0; // 世代号：写操作后失效，防止在途抓取用旧数据覆盖
+const USERS_CACHE_TTL = 30000; // 30 秒缓存
 
-// 工具函数：获取用户列表（带 5 秒缓存）
+// 工具函数：获取用户列表（带缓存 + 并发去重 + 后台刷新）
+// 策略：缓存有效期内直接返回；过期但有旧数据时立即返回旧数据并后台刷新（秒开）
 function getUsersList(forceRefresh) {
-  if (!forceRefresh && usersCache && Date.now() - usersCacheTime < USERS_CACHE_TTL) {
+  const fresh = usersCache && Date.now() - usersCacheTime < USERS_CACHE_TTL;
+  if (!forceRefresh && fresh) {
     return Promise.resolve(usersCache);
   }
-  return fetchUsersFromSystem().then(users => {
-    usersCache = users;
-    usersCacheTime = Date.now();
+  // 已有抓取在进行中，直接复用同一个 Promise（避免并发重复执行 wmic）
+  if (usersFetching) {
+    // 若有过期旧数据，先返回旧数据，同时等待后台刷新结果
+    if (!forceRefresh && usersCache) {
+      return Promise.resolve(usersCache);
+    }
+    return usersFetching;
+  }
+  const gen = usersGen;
+  usersFetching = fetchUsersFromSystem().then(users => {
+    // 写操作发生后（gen 变化）不再用旧结果覆盖缓存
+    if (gen === usersGen) {
+      usersCache = users;
+      usersCacheTime = Date.now();
+    }
     return users;
+  }).finally(() => {
+    usersFetching = null;
+  });
+  // 有过期旧数据：立即返回旧数据，后台继续刷新（不阻塞页面）
+  if (!forceRefresh && usersCache) {
+    usersFetching.catch(() => {}); // 后台刷新，不阻塞
+    return Promise.resolve(usersCache);
+  }
+  return usersFetching;
+}
+
+// 并发限制器：最多同时跑 n 个异步任务
+function runWithConcurrency(tasks, limit) {
+  return new Promise((resolve) => {
+    let index = 0;
+    let done = 0;
+    const results = new Array(tasks.length);
+    if (tasks.length === 0) { return resolve(results); }
+    const worker = () => {
+      if (index >= tasks.length) return;
+      const cur = index++;
+      Promise.resolve().then(tasks[cur]).then(r => {
+        results[cur] = r;
+        done++;
+        if (done === tasks.length) { resolve(results); }
+        else { worker(); }
+      }).catch(() => {
+        results[cur] = null;
+        done++;
+        if (done === tasks.length) { resolve(results); }
+        else { worker(); }
+      });
+    };
+    const n = Math.min(limit, tasks.length);
+    for (let i = 0; i < n; i++) { worker(); }
   });
 }
 
-function fetchUsersFromSystem() {
-  return new Promise((resolve, reject) => {
-    try {
-      // 确保iconv-lite可用，如果未加载则尝试动态导入
-      let iconvLite;
+async function fetchUsersFromSystem() {
+  try {
+    let iconvLite;
       try {
         // 尝试导入iconv-lite模块
         iconvLite = require('iconv-lite');
@@ -182,76 +231,107 @@ function fetchUsersFromSystem() {
         logger.debug(`用户名: ${user.name}, 状态: ${user.disabled ? '已禁用' : '已启用'}`);
       });
 
-      // 增强版：使用net user命令检查每个用户的详细状态（避免使用PowerShell）
+      // 增强版：使用net user命令检查每个用户的详细状态（并行执行，大幅提速）
       try {
-        // 为每个用户单独执行net user命令获取详细状态和其他信息
-        // 使用spawnSync代替PowerShell以提高性能
-        for (let i = 0; i < users.length; i++) {
-          const user = users[i];
-          try {
-            // 直接使用spawnSync执行net命令，避免PowerShell的启动开销
-            const spawnResult = spawnSync('net', ['user', user.name], bufferOptions);
-            const userDetailOutput = safeDecode(spawnResult.stdout);
-            logger.debug(`用户 ${user.name} 的net user详细输出:\n${userDetailOutput}`);
-            
-            // 检查输出中是否包含禁用标记（多种格式）
-            if (userDetailOutput.includes('帐户已禁用') || 
-                userDetailOutput.includes('Account is disabled') ||
-                /帐户启用\s+No/.test(userDetailOutput)) {
-              users[i] = { ...user, disabled: true };
-              logger.debug(`通过net user确认: 用户 ${user.name} 已禁用`);
-            } else if (userDetailOutput.includes('帐户已启用') || 
-                      userDetailOutput.includes('Account is active') ||
-                      /帐户启用\s+Yes/.test(userDetailOutput)) {
-              users[i] = { ...user, disabled: false };
-              logger.debug(`通过net user确认: 用户 ${user.name} 已启用`);
-            }
-            
-            // 从net user输出中提取全名和描述信息作为补充
-            // 提取全名
-            const fullNameMatch = userDetailOutput.match(/全名\s+(.*)$/m);
-            if (fullNameMatch && fullNameMatch[1]) {
-              const fullName = fullNameMatch[1].trim();
-              if (fullName && fullName !== '') {
-                users[i] = { ...users[i], fullname: fullName };
-              }
-            }
-            
-            // 提取描述/注释，仅当description字段为空时才使用
-            const currentDescription = users[i].description || '';
-            if (currentDescription.trim() === '') {
-              // 更精确地匹配注释行，避免匹配"用户的注释"这一系统默认文本
-              // 寻找格式为"注释[空格/制表符]实际注释内容"的行
-              const commentMatch = userDetailOutput.match(/注释\s+([^\r\n]+)/);
-              if (commentMatch && commentMatch[1]) {
-                const comment = commentMatch[1].trim();
-                // 过滤掉空注释和系统默认文本
-                if (comment && comment !== '' && comment !== '用户的注释') {
-                  users[i] = { ...users[i], description: comment };
+        // 为每个用户构造异步任务：执行 net user <name> 获取详细信息
+        const detailTasks = users.map(user => {
+          return () => new Promise((resolveTask) => {
+            try {
+              // 使用异步 spawn 并行执行 net 命令，避免 spawnSync 串行阻塞
+              const proc = require('child_process').spawn('net', ['user', user.name], { stdio: ['ignore', 'pipe', 'pipe'] });
+              const chunks = [];
+              let errChunks = [];
+              proc.stdout.on('data', d => chunks.push(d));
+              proc.stderr.on('data', d => errChunks.push(d));
+              proc.on('error', () => resolveTask(null)); // 命令不存在等错误，保留原始数据
+              proc.on('close', () => {
+                try {
+                  const buf = Buffer.concat(chunks);
+                  let userDetailOutput;
+                  if (iconvLite) {
+                    try {
+                      userDetailOutput = iconvLite.decode(buf, 'cp936');
+                    } catch (e) {
+                      userDetailOutput = buf.toString('utf8');
+                    }
+                  } else {
+                    userDetailOutput = buf.toString('utf8');
+                  }
+                  resolveTask({ user, output: userDetailOutput });
+                } catch (e) {
+                  resolveTask(null);
                 }
+              });
+            } catch (e) {
+              resolveTask(null);
+            }
+          });
+        });
+        
+        // 并行执行，并发数限制为 6，避免瞬间拉起太多进程
+        const detailResults = await runWithConcurrency(detailTasks, 6);
+        
+        detailResults.forEach((result, i) => {
+          if (!result || !result.output) return;
+          const user = users[i];
+          const userDetailOutput = result.output;
+          logger.debug(`用户 ${user.name} 的net user详细输出:\n${userDetailOutput}`);
+          
+          // 检查输出中是否包含禁用标记（多种格式）
+          let newDisabled = user.disabled;
+          if (userDetailOutput.includes('帐户已禁用') || 
+              userDetailOutput.includes('Account is disabled') ||
+              /帐户启用\s+No/.test(userDetailOutput)) {
+            newDisabled = true;
+            logger.debug(`通过net user确认: 用户 ${user.name} 已禁用`);
+          } else if (userDetailOutput.includes('帐户已启用') || 
+                    userDetailOutput.includes('Account is active') ||
+                    /帐户启用\s+Yes/.test(userDetailOutput)) {
+            newDisabled = false;
+            logger.debug(`通过net user确认: 用户 ${user.name} 已启用`);
+          }
+          
+          let newFullname = user.fullname;
+          let newDescription = user.description;
+          
+          // 从net user输出中提取全名和描述信息作为补充
+          const fullNameMatch = userDetailOutput.match(/全名\s+(.*)$/m);
+          if (fullNameMatch && fullNameMatch[1]) {
+            const fullName = fullNameMatch[1].trim();
+            if (fullName && fullName !== '') {
+              newFullname = fullName;
+            }
+          }
+          
+          // 提取描述/注释，仅当description字段为空时才使用
+          if (!newDescription || newDescription.trim() === '') {
+            const commentMatch = userDetailOutput.match(/注释\s+([^\r\n]+)/);
+            if (commentMatch && commentMatch[1]) {
+              const comment = commentMatch[1].trim();
+              if (comment && comment !== '' && comment !== '用户的注释') {
+                newDescription = comment;
               }
             }
-          } catch (userDetailError) {
-            logger.warn(`获取用户 ${user.name} 详细信息失败:`, userDetailError.message);
-            // 继续处理其他用户，不中断循环
           }
-        }
+          
+          users[i] = { ...users[i], disabled: newDisabled, fullname: newFullname, description: newDescription };
+        });
       } catch (error) {
         logger.warn('增强状态检测失败，但保留原有结果:', error.message);
       }
       
-      resolve(users);
+      return users;
     } catch (error) {
       console.error('获取用户列表异常:', error);
-      reject(new Error('获取用户列表失败: ' + error.message));
+      throw new Error('获取用户列表失败: ' + error.message);
     }
-  });
 }
 
 // 写操作后调用：立即失效缓存，保证下次读取最新数据
 function invalidateUsersCache() {
   usersCache = null;
   usersCacheTime = 0;
+  usersGen++; // 使在途抓取结果失效
 }
 
 // 工具函数：修改用户密码
@@ -503,6 +583,46 @@ function addUser(username, password, fullName = '', description = '', isAdmin = 
   }
 }
 
+// 工具函数：删除用户
+function deleteUser(username) {
+  username = String(username);
+  
+  try {
+    logger.info(`删除用户: ${username}`);
+    
+    // 使用net user命令删除用户
+    const result = spawnSync('net', ['user', username, '/delete']);
+    
+    if (result.status !== 0) {
+      let errorMessage = '删除用户失败';
+      if (result.stderr) {
+        errorMessage = result.stderr.toString().trim();
+      } else if (result.stdout) {
+        errorMessage = result.stdout.toString().trim();
+      }
+      logger.error(`删除用户 ${username} 失败: ${errorMessage}`);
+      throw new Error('删除用户失败: ' + errorMessage);
+    }
+    
+    logger.info(`用户 ${username} 删除成功`);
+    
+    // 删除授权信息
+    try {
+      const authorization = require('../config/authorization');
+      if (authorization && typeof authorization.removeUserAuthorization === 'function') {
+        authorization.removeUserAuthorization(username);
+      }
+    } catch (authError) {
+      logger.warn(`删除用户 ${username} 的授权信息失败:`, authError.message);
+    }
+    
+    return true;
+  } catch (error) {
+    logger.error(`删除用户 ${username} 时发生异常:`, error);
+    throw new Error('删除用户失败: ' + error.message);
+  }
+}
+
 // 工具函数：重命名用户
 function renameUser(oldUsername, newUsername) {
   try {
@@ -648,5 +768,6 @@ module.exports = {
   changeUserPassword,
   addUser,
   renameUser,
-  updateUserInfo
+  updateUserInfo,
+  deleteUser
 };

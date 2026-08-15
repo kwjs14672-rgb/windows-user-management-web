@@ -106,7 +106,7 @@ body {
   margin-top: 1px !important;
 }
 
-/* 菜单分组（一级标题：美化 + 层级突出） */
+/* 菜单分组（一级标题：美化 + 层级突出，三个分组各自配色与深色底纹协调） */
 .nova-group {
   font-size: 15px !important;
   color: rgba(255, 255, 255, 0.9) !important;
@@ -125,7 +125,23 @@ body {
   gap: 6px !important;
 }
 
-/* 一级标题：左右渐变分隔线装饰，突出层级 */
+/* 三个一级标题分组配色（总览-电光青 / 用户管理-琥珀金 / 系统-星云蓝紫） */
+.nova-nav .nova-group:nth-of-type(1) {
+  color: #7ee8fa !important;
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.45) !important;
+}
+
+.nova-nav .nova-group:nth-of-type(2) {
+  color: #ffd98a !important;
+  text-shadow: 0 0 12px rgba(245, 185, 62, 0.4) !important;
+}
+
+.nova-nav .nova-group:nth-of-type(3) {
+  color: #b9c6ff !important;
+  text-shadow: 0 0 12px rgba(129, 140, 248, 0.4) !important;
+}
+
+/* 一级标题：左右渐变分隔线装饰，突出层级（随分组配色） */
 .nova-group::before,
 .nova-group::after {
   content: "" !important;
@@ -139,6 +155,26 @@ body {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.25), transparent) !important;
 }
 
+/* 分隔线跟随分组配色 */
+.nova-nav .nova-group:nth-of-type(1)::before {
+  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.7)) !important;
+}
+.nova-nav .nova-group:nth-of-type(1)::after {
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.7), transparent) !important;
+}
+.nova-nav .nova-group:nth-of-type(2)::before {
+  background: linear-gradient(90deg, transparent, rgba(245, 185, 62, 0.7)) !important;
+}
+.nova-nav .nova-group:nth-of-type(2)::after {
+  background: linear-gradient(90deg, rgba(245, 185, 62, 0.7), transparent) !important;
+}
+.nova-nav .nova-group:nth-of-type(3)::before {
+  background: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.7)) !important;
+}
+.nova-nav .nova-group:nth-of-type(3)::after {
+  background: linear-gradient(90deg, rgba(129, 140, 248, 0.7), transparent) !important;
+}
+
 .nova-group:first-of-type {
   padding-top: 12px !important;
 }
@@ -150,24 +186,28 @@ body {
   padding: 4px 10px 12px !important;
 }
 
-/* 菜单项：图标在上、文字在下（竖排小方块） */
+/* 菜单项：图标在上、文字在下（竖排小方块）——按钮化，一眼可识别可点击 */
 .nova-item {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 4px !important;
-  color: rgba(255, 255, 255, 0.65) !important;
+  color: rgba(255, 255, 255, 0.78) !important;
   text-decoration: none !important;
-  padding: 12px 4px !important;
+  padding: 11px 4px !important;
   border-radius: 10px !important;
-  margin: 3px 0 !important;
+  margin: 4px 0 !important;
   font-size: 13px !important;
   transition: all 0.18s ease !important;
   border-left: none !important;
-  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
   text-align: center !important;
   line-height: 1.3 !important;
+  cursor: pointer !important;
+  position: relative !important;
 }
 
 .nova-item svg {
@@ -186,8 +226,11 @@ body {
 }
 
 .nova-item:hover {
-  background: rgba(255, 255, 255, 0.07) !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
   color: #fff !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28) !important;
+  transform: translateY(-1px) !important;
 }
 
 /* 选中态：位置/形式保持竖排不变，底纹改为渐变高亮 */

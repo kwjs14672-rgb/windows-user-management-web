@@ -107,6 +107,23 @@ function enableUserAuthorization(username) {
   }
 }
 
+// 删除用户授权信息
+function removeUserAuthorization(username) {
+  try {
+    const authorizations = getUserAuthorizations();
+    if (authorizations[username]) {
+      delete authorizations[username];
+      fs.writeFileSync(AUTHORIZATION_FILE, JSON.stringify({ authorizations }, null, 2));
+      logger.info(`删除用户 ${username} 的授权信息成功`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    logger.error('删除用户授权信息失败:', error);
+    throw new Error('删除用户授权信息失败: ' + error.message);
+  }
+}
+
 // 检查用户授权是否有效
 function isUserAuthorized(username) {
   try {
@@ -430,6 +447,7 @@ module.exports = {
   saveUserAuthorization,
   disableUserAuthorization,
   enableUserAuthorization,
+  removeUserAuthorization,
   isUserAuthorized,
   getAuthorizationCheckInterval,
   syncUserAuthorizationToSystem,

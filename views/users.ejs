@@ -767,7 +767,7 @@
                 <h2>用户列表</h2>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn primary" onclick="refreshUserList()">刷新列表</button>
-                    <button class="btn primary" onclick="openAddUserModal()">新增用户</button>
+                    <button class="btn primary" onclick="openAddUserModal()">新增账号</button>
                 </div>
             </div>
             
@@ -845,11 +845,11 @@
         </div>
     </div>
     
-    <!-- 新增用户模态框 -->
+    <!-- 新增账号模态框 -->
     <div id="addUserModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>新增用户</h3>
+                <h3>新增账号</h3>
                 <span class="close-button" onclick="closeAddUserModal()">&times;</span>
             </div>
             <form id="addUserForm">
@@ -886,7 +886,7 @@
         </div>
         <div class="form-actions">
                 <button type="button" class="btn secondary" onclick="closeAddUserModal()">取消</button>
-                <button type="submit" class="btn primary">创建用户</button>
+                <button type="submit" class="btn primary">创建账号</button>
             </div>
             </form>
         </div>
@@ -927,6 +927,24 @@
     
 
     
+    <!-- 删除用户确认模态框 -->
+    <div id="deleteUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>删除账号</h3>
+                <span class="close-button" onclick="closeDeleteUserModal()">&times;</span>
+            </div>
+            <div style="padding: 6px 0 16px;">
+                <p style="margin: 0 0 10px;">确定要删除账号 <strong id="deleteUsernameText"></strong> 吗？</p>
+                <p style="margin: 0; color: #e74c3c; font-size: 13px;">⚠ 删除后该账号将无法登录系统，此操作不可恢复！</p>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn secondary" onclick="closeDeleteUserModal()">取消</button>
+                <button type="button" class="btn danger" onclick="confirmDeleteUser()">确认删除</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 消息提示 -->
     <div id="message" class="message"></div>
     
@@ -941,6 +959,7 @@
         const editUserModal = document.getElementById('editUserModal');
         const addUserModal = document.getElementById('addUserModal');
         const changePasswordModal = document.getElementById('changePasswordModal');
+        const deleteUserModal = document.getElementById('deleteUserModal');
         const editUserForm = document.getElementById('editUserForm');
         const addUserForm = document.getElementById('addUserForm');
         const changePasswordForm = document.getElementById('changePasswordForm');
@@ -1054,6 +1073,7 @@
                         <button class="btn small primary action-btn" onclick="openEditUserModal('${user.name}')">编辑</button>
                         <button class="btn small secondary action-btn" onclick="openChangePasswordModal('${user.name}')">修改密码</button>
                         <button class="btn small ${toggleActionClass} action-btn" onclick="toggleUserStatus('${user.name}', ${!user.disabled})">${toggleActionText}</button>
+                        <button class="btn small danger action-btn" onclick="openDeleteUserModal('${user.name}')">删除</button>
                     </td>
                 `;
                 
@@ -1164,7 +1184,7 @@
             });
         }
         
-        // 打开新增用户模态框
+        // 打开新增账号模态框
         function openAddUserModal() {
             addUserForm.reset();
             document.getElementById('passwordStrengthBar').style.width = '0';
@@ -1178,7 +1198,7 @@
             }, 10);
         }
         
-        // 关闭新增用户模态框
+        // 关闭新增账号模态框
         function closeAddUserModal() {
             addUserModal.classList.remove('show');
             // 等待动画完成后隐藏
@@ -1187,7 +1207,7 @@
             }, 300);
         }
         
-        // 新增用户
+        // 新增账号
         // 优化复选框样式
         const checkboxStyle = document.createElement('style');
         checkboxStyle.textContent = `
@@ -1272,6 +1292,60 @@
             }
         }
         
+        // 删除用户相关
+        let deleteTargetUsername = '';
+        
+        // 打开删除用户确认模态框
+        function openDeleteUserModal(username) {
+            deleteTargetUsername = username;
+            document.getElementById('deleteUsernameText').textContent = username;
+            
+            deleteUserModal.style.display = 'block';
+            setTimeout(() => {
+                deleteUserModal.classList.add('show');
+            }, 10);
+        }
+        
+        // 关闭删除用户确认模态框
+        function closeDeleteUserModal() {
+            deleteUserModal.classList.remove('show');
+            setTimeout(() => {
+                deleteUserModal.style.display = 'none';
+                deleteTargetUsername = '';
+            }, 300);
+        }
+        
+        // 确认删除用户
+        function confirmDeleteUser() {
+            if (!deleteTargetUsername) return;
+            
+            loading.classList.add('show');
+            
+            fetch('/api/users/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: deleteTargetUsername })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.classList.remove('show');
+                
+                if (data.success) {
+                    showMessage(data.message || '删除成功', 'success');
+                    closeDeleteUserModal();
+                    loadUsers(); // 重新加载用户列表
+                } else {
+                    showMessage(data.message || '删除失败', 'error');
+                }
+            })
+            .catch(error => {
+                loading.classList.remove('show');
+                showMessage('删除用户时发生错误: ' + error.message, 'error');
+            });
+        }
+        
         // 检查密码强度
         function checkPasswordStrength(password, barId, textId) {
             const strengthBar = document.getElementById(barId);
@@ -1280,11 +1354,11 @@
             let strength = 0;
             let feedback = '';
             
-            // 密码长度检查
-            if (password.length >= 8) {
+            // 密码长度检查（最少6位）
+            if (password.length >= 6) {
                 strength += 25;
             } else {
-                feedback = '密码长度至少8个字符';
+                feedback = '密码长度至少6个字符';
             }
             
             // 包含数字检查
@@ -1444,6 +1518,8 @@
                 closeAddUserModal();
             } else if (event.target === changePasswordModal) {
                 closeChangePasswordModal();
+            } else if (event.target === deleteUserModal) {
+                closeDeleteUserModal();
             }
         });
         
@@ -1466,7 +1542,7 @@
             showMessage('用户前缀设置保存成功', 'success');
         }
         
-        // 修改新增用户函数，应用前缀
+        // 修改新增账号函数，应用前缀
         function addNewUser() {
             let username = document.getElementById('newUsername').value;
             const password = document.getElementById('newPassword').value;

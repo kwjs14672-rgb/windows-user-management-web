@@ -4,9 +4,9 @@ const crypto = require('crypto');
 function validatePasswordStrength(password) {
   const errors = [];
   
-  // 检查密码长度
-  if (!password || password.length < 8) {
-    errors.push('密码长度至少为8个字符');
+  // 检查密码长度（最少6位）
+  if (!password || password.length < 6) {
+    errors.push('密码长度至少为6个字符');
   }
   
   // 检查是否包含数字

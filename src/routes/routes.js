@@ -6,7 +6,7 @@ const { CONFIG_DIR } = require('../utils/runtimePaths');
 const { generateCSRFToken, validatePasswordStrength } = require('../utils/passwordUtils');
 const { getAdminConfig, updateAdminPassword, ADMIN_CONFIG_PATH } = require('../config/adminConfig');
 const { getUserAuthorizations, saveUserAuthorization, disableUserAuthorization, enableUserAuthorization, isUserAuthorized, getAuthorizationCheckInterval } = require('../config/authorization');
-const { getUsersList, changeUserPassword, addUser, renameUser, updateUserInfo, invalidateUsersCache } = require('../utils/userUtils');
+const { getUsersList, changeUserPassword, addUser, renameUser, updateUserInfo, deleteUser, invalidateUsersCache } = require('../utils/userUtils');
 const { getActiveSessions, disconnectUser, logoffUser, sendMessageToUser, formatDuration } = require('../utils/sessionUtils');
 
 // 导出路由设置函数
@@ -613,9 +613,9 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
         return res.json({ success: false, message: '用户名格式不正确' });
       }
       
-      // 验证密码长度和复杂度
-      if (newPassword.length < 8) {
-        return res.json({ success: false, message: '密码长度至少为8个字符' });
+      // 验证密码长度和复杂度（最少6位）
+      if (newPassword.length < 6) {
+        return res.json({ success: false, message: '密码长度至少为6个字符' });
       }
       
       // 使用net user命令修改用户密码
@@ -1010,6 +1010,46 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
         success: false, 
         message: `用户状态设置失败: ${error.message}` 
       });
+    }
+  });
+
+  // 删除用户
+  app.post('/api/users/delete', requireAuth, (req, res) => {
+    try {
+      const { username } = req.body;
+      const currentUser = req.username;
+      
+      if (!username) {
+        return res.json({ success: false, message: '缺少用户名参数' });
+      }
+      
+      // 安全限制：不能删除内置管理员账户
+      if (username.toLowerCase() === 'administrator') {
+        return res.json({ success: false, message: '不能删除内置管理员账户 administrator' });
+      }
+      
+      // 安全限制：不能删除自己（当前登录的账户）
+      if (currentUser && username.toLowerCase() === currentUser.toLowerCase()) {
+        return res.json({ success: false, message: '不能删除当前登录的账户' });
+      }
+      
+      // 安全限制：不能删除系统内置账户
+      const protectedAccounts = ['guest', 'defaultaccount', 'wdagutilityaccount'];
+      if (protectedAccounts.includes(username.toLowerCase())) {
+        return res.json({ success: false, message: '不能删除系统内置账户 ' + username });
+      }
+      
+      deleteUser(username);
+      invalidateUsersCache();
+      
+      // 记录操作日志
+      const { logAction } = require('../config/authorization');
+      logAction('delete_user', `成功删除用户 ${username}`);
+      
+      res.json({ success: true, message: `用户 ${username} 已成功删除` });
+    } catch (error) {
+      logger.error(`删除用户失败:`, error);
+      res.json({ success: false, message: error.message || '删除用户失败' });
     }
   });
 

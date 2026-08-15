@@ -4,6 +4,17 @@ const path = require('path');
 const zlib = require('zlib');
 const app = express();
 
+// 确保 System32 在 PATH 中（服务/计划任务环境下 PATH 可能不含 System32，导致 net/wmic/powershell 找不到）
+const winDir = process.env.SystemRoot || 'C:\\Windows';
+const sys32 = path.join(winDir, 'System32');
+const wbem = path.join(sys32, 'wbem');
+const psDir = path.join(sys32, 'WindowsPowerShell', 'v1.0');
+const currentPath = process.env.PATH || '';
+const needed = [sys32, wbem, psDir].filter(d => currentPath.toLowerCase().split(';').indexOf(d.toLowerCase()) === -1);
+if (needed.length > 0) {
+  process.env.PATH = currentPath + (currentPath ? ';' : '') + needed.join(';');
+}
+
 // 导入模块
 const logger = require('./src/utils/logger');
 const AdminManager = require('./src/services/adminManager');
@@ -364,3 +375,12 @@ setTimeout(() => {
 
 // 启动服务器
 startServer();
+
+// 预加载用户缓存：服务启动即抓取一次用户列表，避免用户第一次打开页面时等待
+setTimeout(() => {
+  getUsersList().then(users => {
+    logger.info(`启动预热用户缓存完成，共 ${users.length} 个用户`);
+  }).catch(err => {
+    logger.warn('启动预热用户缓存失败:', err.message);
+  });
+}, 1500);
