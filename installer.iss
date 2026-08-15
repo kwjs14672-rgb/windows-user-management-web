@@ -3,7 +3,7 @@
 ; v2.1.0: 一体化安装 - 填公网IP即可，装完自动运行全部服务
 
 #define MyAppName "Windows用户远程管理系统"
-#define MyAppVersion "2.2.0"
+#define MyAppVersion "2.2.1"
 #define MyAppPublisher "windows-user-management-web"
 #define MyAppExeName "windows-user-management-web.exe"
 
@@ -74,7 +74,8 @@ Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile
 Filename: "{app}\windows-user-management-web.exe"; Flags: runhidden nowait; StatusMsg: "正在启动服务..."
 ; 配置并启动 frp 公网隧道（勾选时）
 ; 传 -Token 参数（用户填写的 frps token），留空时脚本自动生成随机值
-Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\setup-frpc.ps1"" -ServerIP ""{code:GetServerIP}"" -ServerPort 7000 -LocalPort 8080 -Token ""{code:GetServerToken}"""; Flags: runhidden; Tasks: frpc; StatusMsg: "正在配置公网访问..."
+; 传 -MachineNo（第几台）自动分配公网端口和代理名，避免多台机器冲突
+Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\setup-frpc.ps1"" -ServerIP ""{code:GetServerIP}"" -ServerPort 7000 -LocalPort 8080 -Token ""{code:GetServerToken}"" -MachineNo ""{code:GetMachineNo}"""; Flags: runhidden; Tasks: frpc; StatusMsg: "正在配置公网访问..."
 ; 启动浏览器打开管理页面
 Filename: "http://localhost:8080"; Flags: shellexec runhidden nowait; Description: "打开管理页面"
 
@@ -110,6 +111,21 @@ end;
 var
   ServerIPPage: TInputQueryWizardPage;
 
+// 根据机器序号计算公网端口（第1台=8080，第2台=8081，第3台=8082...）
+function GetMachinePublicPort(MachineNo: Integer): Integer;
+begin
+  Result := 8080 + (MachineNo - 1);
+end;
+
+// 根据机器序号生成 frp 代理名（第1台=wum-web，第2台=wum-web-2...）
+function GetMachineProxyName(MachineNo: Integer): String;
+begin
+  if MachineNo <= 1 then
+    Result := 'wum-web'
+  else
+    Result := 'wum-web-' + IntToStr(MachineNo);
+end;
+
 procedure InitializeWizard;
 begin
   ServerIPPage := CreateInputQueryPage(wpSelectTasks,
@@ -124,6 +140,8 @@ begin
   ServerIPPage.Values[0] := '{#MyServerIP}';
   ServerIPPage.Add('frp token（与服务器 frps.toml 一致）:', False);
   ServerIPPage.Values[1] := '{#MyToken}';
+  ServerIPPage.Add('这是第几台机器？（自动分配公网端口: 第1台=8080, 第2台=8081...）:', False);
+  ServerIPPage.Values[2] := '1';
 end;
 
 function GetServerIP(Param: String): String;
@@ -138,6 +156,16 @@ begin
   Result := ServerIPPage.Values[1];
 end;
 
+function GetMachineNo(Param: String): String;
+var
+  val: Integer;
+begin
+  val := StrToIntDef(Trim(ServerIPPage.Values[2]), 1);
+  if val < 1 then val := 1;
+  if val > 99 then val := 99;
+  Result := IntToStr(val);
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
@@ -147,6 +175,6 @@ begin
            '首次登录后请立即修改密码。' + #13#10 + #13#10 +
            '本机访问: http://localhost:8080' + #13#10 +
            '局域网访问: http://本机IP:8080' + #13#10 +
-           '公网访问: http://' + GetServerIP('') + ':8080' + #13#10 + #13#10 +
+           '公网访问: http://' + GetServerIP('') + ':' + IntToStr(GetMachinePublicPort(StrToIntDef(GetMachineNo(''), 1))) + #13#10 + #13#10 +
            '（服务与公网隧道已设置为开机自启）', mbInformation, MB_OK);
 end;
