@@ -764,7 +764,7 @@
         <!-- 用户管理卡片 -->
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>用户列表</h2>
+                <h2>账号列表</h2>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn primary" onclick="refreshUserList()">刷新列表</button>
                     <button class="btn primary" onclick="openAddUserModal()">新增账号</button>
@@ -785,7 +785,7 @@
             </div>
             
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="搜索用户名...">
+                <input type="text" id="searchInput" placeholder="搜索账号名...">
                 <button onclick="searchUser()">搜索</button>
             </div>
             
@@ -819,7 +819,7 @@
             </div>
             <form id="editUserForm">
                 <div class="form-group">
-                    <label for="editUsername">用户名</label>
+                    <label for="editUsername">账号名</label>
                     <input type="text" id="editUsername" readonly>
                 </div>
                 <div class="form-group">
@@ -854,8 +854,8 @@
             </div>
             <form id="addUserForm">
                 <div class="form-group">
-                    <label for="newUsername">用户名</label>
-                    <input type="text" id="newUsername" required placeholder="请输入用户名">
+                    <label for="newUsername">账号名</label>
+                    <input type="text" id="newUsername" required placeholder="请输入账号名">
                 </div>
                 <div class="form-group">
                     <label for="newPassword">密码</label>
@@ -901,7 +901,7 @@
             </div>
             <form id="changePasswordForm">
                 <div class="form-group">
-                    <label for="changePasswordUsername">用户名</label>
+                    <label for="changePasswordUsername">账号名</label>
                     <input type="text" id="changePasswordUsername" readonly>
                 </div>
                 <div class="form-group">
@@ -1026,7 +1026,7 @@
                         currentUsers = data.users;
                         renderUserTable(currentUsers);
                     } else {
-                        showMessage('获取用户列表失败: ' + data.message, 'error');
+                        showMessage('获取账号列表失败: ' + data.message, 'error');
                     }
                 })
                 .catch(error => {
@@ -1045,7 +1045,7 @@
             userTableBody.innerHTML = '';
             
             if (users.length === 0) {
-                userTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">没有找到用户</td></tr>';
+                userTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">没有找到账号</td></tr>';
                 return;
             }
             
@@ -1567,14 +1567,14 @@
             // 验证用户名长度（最大20个字符）
             const maxUsernameLength = 20;
             if (username.length > maxUsernameLength) {
-                showMessage(`用户名长度不能超过${maxUsernameLength}个字符，当前长度为${username.length}个字符`, 'error');
+                showMessage(`账号名长度不能超过${maxUsernameLength}个字符，当前长度为${username.length}个字符`, 'error');
                 return;
             }
             
             // 验证用户名格式
             // 修改正则表达式以支持中文和特殊字符
           if (!/^[\w\u4e00-\u9fa5#\-:+]+$/.test(username)) {
-            showMessage('用户名只能包含字母、数字、下划线、中文字符和特殊字符(# - : +)', 'error');
+            showMessage('账号名只能包含字母、数字、下划线、中文字符和特殊字符(# - : +)', 'error');
             return;
             }
             

@@ -644,7 +644,7 @@
             <h2>授权管理设置</h2>
             
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="搜索用户...">
+                <input type="text" id="searchInput" placeholder="搜索账号...">
                 <button onclick="searchUser()">搜索</button>
                 <button onclick="loadData()" style="margin-left: 10px; background-color: #95a5a6;">刷新</button>
             </div>
@@ -653,7 +653,7 @@
                 <table class="table" id="userTable">
                     <thead>
                         <tr>
-                            <th>用户名</th>
+                            <th>账号名</th>
                             <th>当前状态</th>
                             <th>授权开始时间</th>
                             <th>授权结束时间</th>
@@ -674,29 +674,29 @@
         </div>
     </div>
     
-    <!-- 设置授权时间模态框 -->
+    <!-- 设置账户授权时间模态框 -->
     <div id="setAuthorizationModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>设置用户授权时间</h3>
+                <h3>设置账户授权时间</h3>
                 <span class="close-button" onclick="closeAuthorizationModal()">&times;</span>
             </div>
             <form id="setAuthorizationForm">
                 <div class="form-group">
-                    <label for="usernameInput">用户名</label>
+                    <label for="usernameInput">账号名</label>
                     <input type="text" id="usernameInput" readonly>
                 </div>
                 <div class="form-group">
-                    <label for="startDateInput">授权开始时间</label>
+                    <label for="startDateInput">授权开始时间（默认当前时间）</label>
                     <input type="datetime-local" id="startDateInput" required>
                 </div>
                 <div class="form-group">
-                    <label for="authDaysInput">授权天数（结束时间自动 = 开始 + 天数×24小时）</label>
-                    <input type="number" id="authDaysInput" min="0" step="1" value="7" placeholder="输入天数，如 7">
+                    <label for="authHoursInput">授权小时（结束时间自动 = 开始 + 小时数）</label>
+                    <input type="number" id="authHoursInput" min="0.1" step="0.5" value="168" placeholder="输入小时数，如 168">
                 </div>
                 <div class="form-group">
-                    <label for="endDateInput">授权结束时间（自动换算）</label>
-                    <input type="datetime-local" id="endDateInput" required>
+                    <label for="endDateInput">授权结束时间（自动换算，不可手动调整）</label>
+                    <input type="datetime-local" id="endDateInput" required readonly>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn secondary" onclick="closeAuthorizationModal()">取消</button>
@@ -948,7 +948,7 @@
                     <td><span class="${onlineStatusClass}">${onlineStatusText}</span></td>
                     <td>
                         <button class="btn small primary" onclick="openAuthorizationModal('${user.name}')">设置授权</button>
-                        <button class="btn small ${user.disabled ? 'success' : 'danger'}" onclick="toggleUserStatus('${user.name}')">${user.disabled ? '启用用户' : '禁用用户'}</button>
+                        <button class="btn small ${user.disabled ? 'success' : 'danger'}" onclick="toggleUserStatus('${user.name}')">${user.disabled ? '启用账号' : '禁用账号'}</button>
                     </td>
                 `;
                 
@@ -975,19 +975,21 @@
             // 查找用户当前授权信息
             const user = currentUsers.find(u => u.name === username);
             const now = new Date();
+            // 默认开始时间 = 当前时间；默认授权小时 = 168（7天）
+            const defaultHours = 168;
             document.getElementById('startDateInput').value = formatDateForInput(now);
-            document.getElementById('authDaysInput').value = 7;
-            document.getElementById('endDateInput').value = formatDateForInput(new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000));
+            document.getElementById('authHoursInput').value = defaultHours;
+            document.getElementById('endDateInput').value = formatDateForInput(new Date(now.getTime() + defaultHours * 60 * 60 * 1000));
             
             if (user && user.authorization) {
-                // 有已有授权：回填已有时间，并计算天数
+                // 已有授权：回填已保存的开始/结束时间，并换算小时数（保持不变）
                 const startDate = new Date(user.authorization.startDate);
                 const endDate = new Date(user.authorization.endDate);
                 document.getElementById('startDateInput').value = formatDateForInput(startDate);
                 document.getElementById('endDateInput').value = formatDateForInput(endDate);
                 if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime()) && endDate > startDate) {
-                    const days = Math.round((endDate - startDate) / (24 * 60 * 60 * 1000));
-                    document.getElementById('authDaysInput').value = Math.max(days, 0);
+                    const hours = Math.round((endDate - startDate) / (60 * 60 * 1000) * 10) / 10;
+                    document.getElementById('authHoursInput').value = Math.max(hours, 0.1);
                 }
             }
             
@@ -998,23 +1000,23 @@
             }, 10);
         }
         
-        // 天数输入自动换算结束时间（开始 + 天数×24小时）
+        // 小时输入自动换算结束时间（开始 + 小时数）
         document.addEventListener('input', function(e) {
-            if (e.target && e.target.id === 'authDaysInput') {
-                updateEndDateFromDays();
+            if (e.target && e.target.id === 'authHoursInput') {
+                updateEndDateFromHours();
             }
             if (e.target && e.target.id === 'startDateInput') {
-                updateEndDateFromDays();
+                updateEndDateFromHours();
             }
         });
         
-        function updateEndDateFromDays() {
+        function updateEndDateFromHours() {
             const startVal = document.getElementById('startDateInput').value;
-            const days = parseFloat(document.getElementById('authDaysInput').value);
-            if (!startVal || isNaN(days) || days < 0) return;
+            const hours = parseFloat(document.getElementById('authHoursInput').value);
+            if (!startVal || isNaN(hours) || hours < 0) return;
             const start = new Date(startVal);
             if (isNaN(start.getTime())) return;
-            const end = new Date(start.getTime() + days * 24 * 60 * 60 * 1000);
+            const end = new Date(start.getTime() + hours * 60 * 60 * 1000);
             document.getElementById('endDateInput').value = formatDateForInput(end);
         }
         
@@ -1078,7 +1080,7 @@
             const isUserDisabled = user.disabled;
             const action = isUserDisabled ? '启用' : '禁用';
             
-            if (confirm(`确定要${action}用户 ${username} 吗？`)) {
+            if (confirm(`确定要${action}账号 ${username} 吗？`)) {
                 loading.classList.add('show');
                 
                 // 使用系统统一的用户状态管理API

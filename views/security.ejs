@@ -1017,7 +1017,7 @@
                             html += '<div class="security-section">';
                             html += '<h4><i class="fas fa-sign-in-alt"></i> 最近登录活动</h4>';
                             html += '<div class="table-container"><table class="table">';
-                            html += '<thead><tr><th>用户名</th><th>登录时间</th><th>IP地址</th></tr></thead>';
+                            html += '<thead><tr><th>账号名</th><th>登录时间</th><th>IP地址</th></tr></thead>';
                             html += '<tbody>';
                             data.recentLogins.forEach(login => {
                                 html += `<tr><td><i class="fas fa-user"></i> ${login.username}</td><td><i class="fas fa-clock"></i> ${login.time}</td><td><i class="fas fa-globe"></i> ${login.ip || '本地登录'}</td></tr>`;
