@@ -687,12 +687,41 @@
                     <input type="text" id="usernameInput" readonly>
                 </div>
                 <div class="form-group">
-                    <label for="startDateInput">授权开始时间（默认当前时间）</label>
-                    <input type="datetime-local" id="startDateInput" required>
+                    <label for="startDateInput">授权开始时间（默认当前时间，不可手动调整）</label>
+                    <input type="datetime-local" id="startDateInput" required readonly>
                 </div>
                 <div class="form-group">
-                    <label for="authHoursInput">授权小时（结束时间自动 = 开始 + 小时数）</label>
-                    <input type="number" id="authHoursInput" min="0.1" step="0.5" value="168" placeholder="输入小时数，如 168">
+                    <label for="authDaysInput">授权天数（结束时间自动 = 开始 + 天数×24 + 小时）</label>
+                    <select id="authDaysInput">
+                        <option value="0">0 天</option>
+                        <option value="1" selected>1 天</option>
+                        <option value="2">2 天</option>
+                        <option value="3">3 天</option>
+                        <option value="4">4 天</option>
+                        <option value="5">5 天</option>
+                        <option value="6">6 天</option>
+                        <option value="7">7 天</option>
+                        <option value="14">14 天</option>
+                        <option value="30">30 天</option>
+                        <option value="60">60 天</option>
+                        <option value="90">90 天</option>
+                        <option value="180">180 天</option>
+                        <option value="365">365 天</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="authHoursInput">授权小时（整数，1-24）</label>
+                    <select id="authHoursInput">
+                        <option value="0" selected>0 小时</option>
+                        <option value="1">1 小时</option>
+                        <option value="2">2 小时</option>
+                        <option value="3">3 小时</option>
+                        <option value="4">4 小时</option>
+                        <option value="6">6 小时</option>
+                        <option value="8">8 小时</option>
+                        <option value="12">12 小时</option>
+                        <option value="24">24 小时</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="endDateInput">授权结束时间（自动换算，不可手动调整）</label>
@@ -975,21 +1004,24 @@
             // 查找用户当前授权信息
             const user = currentUsers.find(u => u.name === username);
             const now = new Date();
-            // 默认开始时间 = 当前时间；默认授权小时 = 168（7天）
-            const defaultHours = 168;
+            // 默认开始时间 = 当前时间；默认授权时长 = 1 天 + 0 小时
             document.getElementById('startDateInput').value = formatDateForInput(now);
-            document.getElementById('authHoursInput').value = defaultHours;
-            document.getElementById('endDateInput').value = formatDateForInput(new Date(now.getTime() + defaultHours * 60 * 60 * 1000));
+            document.getElementById('authDaysInput').value = 1;
+            document.getElementById('authHoursInput').value = 0;
+            document.getElementById('endDateInput').value = formatDateForInput(new Date(now.getTime() + 24 * 60 * 60 * 1000));
             
             if (user && user.authorization) {
-                // 已有授权：回填已保存的开始/结束时间，并换算小时数（保持不变）
+                // 已有授权：回填已保存的开始/结束时间，并拆分为天+小时（保持不变）
                 const startDate = new Date(user.authorization.startDate);
                 const endDate = new Date(user.authorization.endDate);
                 document.getElementById('startDateInput').value = formatDateForInput(startDate);
                 document.getElementById('endDateInput').value = formatDateForInput(endDate);
-                if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime()) && endDate > startDate) {
-                    const hours = Math.round((endDate - startDate) / (60 * 60 * 1000) * 10) / 10;
-                    document.getElementById('authHoursInput').value = Math.max(hours, 0.1);
+                if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime()) && endDate >= startDate) {
+                    const totalHours = Math.round((endDate - startDate) / (60 * 60 * 1000) * 10) / 10;
+                    const days = Math.floor(totalHours / 24);
+                    const hours = Math.round((totalHours - days * 24) * 10) / 10;
+                    setSelectValue('authDaysInput', days);
+                    setSelectValue('authHoursInput', hours);
                 }
             }
             
@@ -1000,23 +1032,42 @@
             }, 10);
         }
         
-        // 小时输入自动换算结束时间（开始 + 小时数）
-        document.addEventListener('input', function(e) {
-            if (e.target && e.target.id === 'authHoursInput') {
-                updateEndDateFromHours();
+        // 设置下拉框选中值（不存在该选项时尝试就近或回退）
+        function setSelectValue(id, value) {
+            const sel = document.getElementById(id);
+            const v = String(value);
+            if (Array.from(sel.options).some(o => o.value === v)) {
+                sel.value = v;
+            } else {
+                // 就近选择（如 25 天 → 30 天）
+                const nums = Array.from(sel.options).map(o => parseFloat(o.value)).filter(n => !isNaN(n)).sort((a,b) => a-b);
+                let best = nums[0];
+                for (const n of nums) { if (Math.abs(n - value) < Math.abs(best - value)) best = n; }
+                sel.value = String(best);
             }
-            if (e.target && e.target.id === 'startDateInput') {
-                updateEndDateFromHours();
+        }
+        
+        // 天数/小时输入自动换算结束时间（开始 + 天数×24 + 小时）
+        document.addEventListener('input', function(e) {
+            if (e.target && (e.target.id === 'authDaysInput' || e.target.id === 'authHoursInput')) {
+                updateEndDateFromDuration();
+            }
+        });
+        document.addEventListener('change', function(e) {
+            if (e.target && (e.target.id === 'authDaysInput' || e.target.id === 'authHoursInput')) {
+                updateEndDateFromDuration();
             }
         });
         
-        function updateEndDateFromHours() {
+        function updateEndDateFromDuration() {
             const startVal = document.getElementById('startDateInput').value;
-            const hours = parseFloat(document.getElementById('authHoursInput').value);
-            if (!startVal || isNaN(hours) || hours < 0) return;
+            const days = parseFloat(document.getElementById('authDaysInput').value) || 0;
+            const hours = parseFloat(document.getElementById('authHoursInput').value) || 0;
+            if (!startVal || isNaN(days) || isNaN(hours) || days < 0 || hours < 0) return;
             const start = new Date(startVal);
             if (isNaN(start.getTime())) return;
-            const end = new Date(start.getTime() + hours * 60 * 60 * 1000);
+            const totalMs = (days * 24 + hours) * 60 * 60 * 1000;
+            const end = new Date(start.getTime() + totalMs);
             document.getElementById('endDateInput').value = formatDateForInput(end);
         }
         
