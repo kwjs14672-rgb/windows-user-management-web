@@ -397,18 +397,8 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
 
   // 用户管理页面
   app.get('/users', (req, res) => {
-    try {
-      // 获取所有用户列表
-      getUsersList()
-        .then(users => {
-          res.render('users', { users: users, error: undefined });
-        })
-        .catch(error => {
-          res.render('users', { users: [], error: error.message });
-        });
-    } catch (error) {
-      res.render('users', { users: [], error: error.message });
-    }
+    // 页面骨架直接渲染（用户列表由前端 fetch /api/users 异步加载，避免服务端等待抓取拖慢首屏）
+    res.render('users', { users: [], error: undefined });
   });
 
   // 授权管理页面

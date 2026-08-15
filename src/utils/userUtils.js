@@ -6,7 +6,7 @@ let usersCache = null;
 let usersCacheTime = 0;
 let usersFetching = null; // 进行中的抓取（防止并发重复执行）
 let usersGen = 0; // 世代号：写操作后失效，防止在途抓取用旧数据覆盖
-const USERS_CACHE_TTL = 30000; // 30 秒缓存
+const USERS_CACHE_TTL = 120000; // 120 秒缓存（写操作会主动失效并后台预刷新）
 
 // 工具函数：获取用户列表（带缓存 + 并发去重 + 后台刷新）
 // 策略：缓存有效期内直接返回；过期但有旧数据时立即返回旧数据并后台刷新（秒开）
@@ -327,11 +327,17 @@ async function fetchUsersFromSystem() {
     }
 }
 
-// 写操作后调用：立即失效缓存，保证下次读取最新数据
+// 写操作后调用：立即失效缓存，并在后台预刷新（下次读取直接命中新数据，秒开）
 function invalidateUsersCache() {
   usersCache = null;
   usersCacheTime = 0;
   usersGen++; // 使在途抓取结果失效
+  // 后台预刷新：写操作后立刻抓一次，避免用户下一次打开页面等待
+  try {
+    getUsersList(true).catch(err => logger.warn('写操作后预刷新用户缓存失败:', err.message));
+  } catch (e) {
+    // 忽略，仅尽力而为
+  }
 }
 
 // 工具函数：修改用户密码

@@ -168,34 +168,77 @@ function requireAuth(req, res, next) {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// gzip 压缩中间件（只压缩页面/API 动态响应，静态资源由 express.static 自行处理）
+// 动态响应 gzip 压缩（页面/JSON API；静态资源由下方的专用中间件处理）
 app.use((req, res, next) => {
-  // 静态资源跳过 gzip 包装（express.static 自带压缩协商，避免干扰 MIME/ETag）
-  if (req.path.startsWith('/css/') || req.path.startsWith('/js/') ||
-      req.path.startsWith('/images/') || req.path.startsWith('/img/') ||
-      req.path.startsWith('/fonts/') || req.path.startsWith('/favicon')) {
-    return next();
-  }
   const acceptEncoding = req.headers['accept-encoding'] || '';
   if (!acceptEncoding.includes('gzip')) return next();
   const originalSend = res.send;
   res.send = function (body) {
-    // 只压缩文本类内容
+    // res.render/res.json 调用 send 时 Content-Type 可能尚未设置；
+    // string 类型 body 必然是文本（HTML/JSON），直接压缩；Buffer 视为二进制跳过
     const type = String(res.getHeader('Content-Type') || '');
-    if (!/text|json|javascript|css|xml/.test(type)) {
+    const isTextBody = typeof body === 'string';
+    const isTextType = /text|json|javascript|xml|svg/.test(type);
+    if (!isTextBody || (type && !isTextType)) {
       return originalSend.call(this, body);
     }
-    const buf = Buffer.isBuffer(body) ? body : Buffer.from(body, 'utf8');
-    if (buf.length < 512) return originalSend.call(this, body); // 小响应不压缩
+    if (res.getHeader('Content-Encoding')) {
+      return originalSend.call(this, body);
+    }
+    const buf = Buffer.from(body, 'utf8');
+    if (buf.length < 512) return originalSend.call(this, body);
     zlib.gzip(buf, (err, zipped) => {
       if (err || zipped.length >= buf.length) return originalSend.call(this, body);
       res.setHeader('Content-Encoding', 'gzip');
       res.setHeader('Content-Length', zipped.length);
       res.removeHeader('ETag');
+      res.setHeader('Vary', 'Accept-Encoding');
       originalSend.call(this, zipped);
     });
   };
   next();
+});
+
+// 静态资源 gzip 缓存（express.static 内部流式响应，用独立中间件预压缩并缓存，避免流式包装冲突）
+const staticGzipCache = new Map(); // path -> {gz, mtime}
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+  const acceptEncoding = req.headers['accept-encoding'] || '';
+  if (!acceptEncoding.includes('gzip')) return next();
+  // 只处理 public 下的文本类静态资源
+  const rel = req.path.startsWith('/') ? req.path.slice(1) : req.path;
+  if (!/^(css|js|img|images|fonts|favicon\.)/.test(rel)) return next();
+  const filePath = path.join(__dirname, 'public', rel);
+  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) return next();
+  const ext = path.extname(filePath).toLowerCase();
+  const mimeMap = { '.css': 'text/css', '.js': 'application/javascript', '.svg': 'image/svg+xml', '.json': 'application/json', '.txt': 'text/plain', '.html': 'text/html' };
+  if (!mimeMap[ext]) return next();
+  const stat = fs.statSync(filePath);
+  const cached = staticGzipCache.get(req.path);
+  if (cached && cached.mtimeMs === stat.mtimeMs) {
+    res.setHeader('Content-Type', mimeMap[ext]);
+    res.setHeader('Content-Encoding', 'gzip');
+    res.setHeader('Content-Length', cached.gz.length);
+    res.setHeader('Cache-Control', 'public, max-age=604800');
+    res.setHeader('Vary', 'Accept-Encoding');
+    return res.end(cached.gz);
+  }
+  try {
+    const raw = fs.readFileSync(filePath);
+    if (raw.length < 512) return next(); // 小文件不压缩
+    zlib.gzip(raw, (err, gz) => {
+      if (err || gz.length >= raw.length) return next();
+      staticGzipCache.set(req.path, { gz, mtimeMs: stat.mtimeMs });
+      res.setHeader('Content-Type', mimeMap[ext]);
+      res.setHeader('Content-Encoding', 'gzip');
+      res.setHeader('Content-Length', gz.length);
+      res.setHeader('Cache-Control', 'public, max-age=604800');
+      res.setHeader('Vary', 'Accept-Encoding');
+      res.end(gz);
+    });
+  } catch (e) {
+    next();
+  }
 });
 
 // 静态资源：长缓存（CSS/JS 带版本号引用后无需重复下载）
