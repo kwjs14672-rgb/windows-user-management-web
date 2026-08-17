@@ -144,6 +144,15 @@ function removeUserAuthorization(username) {
   }
 }
 
+// 解析授权时间：带时区（Z / ±HH:mm）直接解析；无时区按北京时间(+08:00)解释。
+// 兼容旧系统/旧版本存的无时区记录（用户录入的均为北京时间），避免服务器时区偏差导致"未开始"
+function parseAuthDate(value) {
+  if (!value) return new Date(NaN);
+  const s = String(value).trim();
+  if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(s)) return new Date(s);
+  return new Date(s + '+08:00');
+}
+
 // 检查用户授权是否有效
 function isUserAuthorized(username) {
   try {
@@ -161,8 +170,8 @@ function isUserAuthorized(username) {
     }
     
     const now = new Date();
-    const startDate = new Date(auth.startDate);
-    const endDate = new Date(auth.endDate);
+    const startDate = parseAuthDate(auth.startDate);
+    const endDate = parseAuthDate(auth.endDate);
     
     if (now < startDate) {
       return { authorized: false, reason: '授权时间未开始' };
@@ -463,6 +472,7 @@ function updateAuthorizationCheckInterval(getActiveSessions, disconnectUser, log
 
 module.exports = {
   ensureAuthorizationFile,
+  parseAuthDate,
   getUserAuthorizations,
   saveUserAuthorization,
   disableUserAuthorization,

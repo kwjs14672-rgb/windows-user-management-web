@@ -5,7 +5,7 @@ const fs = require('fs');
 const { CONFIG_DIR } = require('../utils/runtimePaths');
 const { generateCSRFToken, validatePasswordStrength } = require('../utils/passwordUtils');
 const { getAdminConfig, updateAdminPassword, ADMIN_CONFIG_PATH } = require('../config/adminConfig');
-const { getUserAuthorizations, saveUserAuthorization, disableUserAuthorization, enableUserAuthorization, isUserAuthorized, getAuthorizationCheckInterval } = require('../config/authorization');
+const { getUserAuthorizations, saveUserAuthorization, disableUserAuthorization, enableUserAuthorization, isUserAuthorized, getAuthorizationCheckInterval, parseAuthDate } = require('../config/authorization');
 const { getUsersList, changeUserPassword, addUser, renameUser, updateUserInfo, deleteUser, invalidateUsersCache } = require('../utils/userUtils');
 const { getActiveSessions, disconnectUser, logoffUser, sendMessageToUser, formatDuration } = require('../utils/sessionUtils');
 
@@ -660,8 +660,8 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
         return res.json({ success: false, message: '开始日期不能晚于结束日期' });
       }
       
-      // 保存授权信息（规范化时间：无时区字符串按服务器本地解释，统一转 UTC ISO，避免时区偏差）
-      saveUserAuthorization(username, new Date(startDate).toISOString(), new Date(endDate).toISOString());
+      // 保存授权信息（parseAuthDate：带时区直接解析，无时区按北京时间解释，统一转 UTC ISO）
+      saveUserAuthorization(username, parseAuthDate(startDate).toISOString(), parseAuthDate(endDate).toISOString());
       
       // 可选：同步授权状态到系统
       const { syncUserAuthorizationToSystem } = require('../config/authorization');
