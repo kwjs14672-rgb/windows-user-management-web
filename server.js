@@ -189,6 +189,8 @@ app.use((req, res, next) => {
     if (buf.length < 512) return originalSend.call(this, body);
     zlib.gzip(buf, (err, zipped) => {
       if (err || zipped.length >= buf.length) return originalSend.call(this, body);
+      // 修复: gzip 后显式恢复 Content-Type（Express 对 Buffer 默认 octet-stream，会导致浏览器下载页面）
+      res.setHeader('Content-Type', type || 'text/html; charset=utf-8');
       res.setHeader('Content-Encoding', 'gzip');
       res.setHeader('Content-Length', zipped.length);
       res.removeHeader('ETag');
