@@ -333,7 +333,8 @@ async function fetchUsersFromSystem() {
 
 // 写操作后调用：立即失效缓存，并在后台预刷新（下次读取直接命中新数据，秒开）
 function invalidateUsersCache() {
-  usersCache = null;
+  // 秒开优化：不置空缓存，只标记过期 —— 新请求立即返回旧数据（stale-while-revalidate），后台刷新
+  // 避免写操作（改密/加用户/设授权等）后下一次打开页面要等待冷查询（wmic/net user 可达 1-2 秒）
   usersCacheTime = 0;
   usersGen++; // 使在途抓取结果失效
   // 后台预刷新：写操作后立刻抓一次，避免用户下一次打开页面等待
