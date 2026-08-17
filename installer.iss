@@ -3,7 +3,7 @@
 ; v2.1.0: 一体化安装 - 填公网IP即可，装完自动运行全部服务
 
 #define MyAppName "Windows用户远程管理系统"
-#define MyAppVersion "2.2.4"
+#define MyAppVersion "2.2.5"
 #define MyAppPublisher "windows-user-management-web"
 #define MyAppExeName "windows-user-management-web.exe"
 

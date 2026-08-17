@@ -1053,6 +1053,11 @@
                 return;
             }
             
+            // 时区修复：datetime-local 不带时区，服务器按自己时区解析会偏差（如服务器为UTC会差8小时），
+            // 导致刚设置的授权被判定为"未开始"并把账号禁用。先转成 UTC ISO 再提交。
+            const startIso = new Date(startDate).toISOString();
+            const endIso = new Date(endDate).toISOString();
+            
             loading.classList.add('show');
             
             fetch('/api/users/set-authorization', {
@@ -1062,8 +1067,8 @@
                 },
                 body: JSON.stringify({
                     username: selectedUsername,
-                    startDate: startDate,
-                    endDate: endDate
+                    startDate: startIso,
+                    endDate: endIso
                 })
             })
             .then(response => response.json())

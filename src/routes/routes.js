@@ -1,4 +1,4 @@
-﻿const logger = require('../utils/logger');
+const logger = require('../utils/logger');
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
@@ -660,8 +660,8 @@ module.exports = function setupRoutes(app, sessionManager, adminManager, require
         return res.json({ success: false, message: '开始日期不能晚于结束日期' });
       }
       
-      // 保存授权信息
-      saveUserAuthorization(username, startDate, endDate);
+      // 保存授权信息（规范化时间：无时区字符串按服务器本地解释，统一转 UTC ISO，避免时区偏差）
+      saveUserAuthorization(username, new Date(startDate).toISOString(), new Date(endDate).toISOString());
       
       // 可选：同步授权状态到系统
       const { syncUserAuthorizationToSystem } = require('../config/authorization');
