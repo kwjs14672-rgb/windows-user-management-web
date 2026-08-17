@@ -1,6 +1,6 @@
 {
   "name": "windows-user-management-web",
-  "version": "2.2.1",
+  "version": "2.2.4",
   "description": "Windows用户远程管理系统 - 管理用户账户、密码和会话（开源版）",
   "main": "server.js",
   "bin": "server.js",
@@ -32,3 +32,4 @@
     "outputPath": "dist"
   }
 }
+

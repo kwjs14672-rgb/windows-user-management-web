@@ -110,6 +110,7 @@ async function fetchUsersFromSystem() {
 
       // 1. 尝试使用wmic命令获取用户列表和详细信息（一次命令获取所有信息）
       let users = [];
+      let wmicSucceeded = false; // wmic 一次调用已返回 禁用/全名/描述，则跳过逐用户查询
       
       try {
         // 使用wmic命令获取所有用户的详细信息，包括名称、禁用状态、全名和描述
@@ -137,7 +138,7 @@ async function fetchUsersFromSystem() {
         // 转换为用户数组
         users = Object.values(userDetails).map(detail => ({
           name: detail.name,
-          disabled: detail.disabled === 'True' || detail.disabled === '1',
+          disabled: String(detail.disabled).toLowerCase() === 'true' || detail.disabled === '1',
           fullname: detail.fullname || '',
           description: detail.description || ''
         }));
@@ -149,6 +150,7 @@ async function fetchUsersFromSystem() {
                  !user.name.includes('完成') && !user.name.includes('Name') &&
                  user.name !== 'FALSE' && user.name !== 'True';
         });
+        wmicSucceeded = users.length > 0;
       } catch (wmicError) {
         logger.warn('wmic命令失败，尝试使用net user命令');
         
@@ -232,6 +234,7 @@ async function fetchUsersFromSystem() {
       });
 
       // 增强版：使用net user命令检查每个用户的详细状态（并行执行，大幅提速）
+      if (!wmicSucceeded) {
       try {
         // 为每个用户构造异步任务：执行 net user <name> 获取详细信息
         const detailTasks = users.map(user => {
@@ -269,7 +272,7 @@ async function fetchUsersFromSystem() {
         });
         
         // 并行执行，并发数限制为 6，避免瞬间拉起太多进程
-        const detailResults = await runWithConcurrency(detailTasks, 6);
+        const detailResults = await runWithConcurrency(detailTasks, 10);
         
         detailResults.forEach((result, i) => {
           if (!result || !result.output) return;
@@ -318,6 +321,7 @@ async function fetchUsersFromSystem() {
         });
       } catch (error) {
         logger.warn('增强状态检测失败，但保留原有结果:', error.message);
+      }
       }
       
       return users;

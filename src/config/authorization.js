@@ -32,15 +32,31 @@ function ensureAuthorizationFile() {
 // 初始化时确保文件存在
 ensureAuthorizationFile();
 
+// 授权信息内存缓存：授权页每30秒轮询一次，避免每次请求重复读文件
+let authzCache = null;
+let authzCacheTime = 0;
+const AUTHZ_CACHE_TTL = 2000; // 2秒，写操作会立即失效，不影响实时性
+
 // 读取用户授权信息
 function getUserAuthorizations() {
+  if (authzCache && Date.now() - authzCacheTime < AUTHZ_CACHE_TTL) {
+    return authzCache;
+  }
   try {
     const data = fs.readFileSync(AUTHORIZATION_FILE, 'utf8').replace(/^\uFEFF/, '');
-    return JSON.parse(data).authorizations || {};
+    authzCache = JSON.parse(data).authorizations || {};
+    authzCacheTime = Date.now();
+    return authzCache;
   } catch (error) {
     logger.error('读取授权信息失败:', error);
     return {};
   }
+}
+
+// 授权信息写入后使缓存失效，保证下次读取拿到最新数据
+function invalidateAuthorizationCache() {
+  authzCache = null;
+  authzCacheTime = 0;
 }
 
 // 保存用户授权信息
@@ -54,6 +70,7 @@ function saveUserAuthorization(username, startDate, endDate) {
     };
     
     fs.writeFileSync(AUTHORIZATION_FILE, JSON.stringify({ authorizations }, null, 2));
+    invalidateAuthorizationCache();
     logger.info(`保存用户 ${username} 的授权信息成功`);
     return true;
   } catch (error) {
@@ -73,6 +90,7 @@ function disableUserAuthorization(username) {
       }
       authorizations[username].metadata.disabled = true;
       fs.writeFileSync(AUTHORIZATION_FILE, JSON.stringify({ authorizations }, null, 2));
+      invalidateAuthorizationCache();
       logger.info(`禁用用户 ${username} 的授权成功`);
       return true;
     }
@@ -97,6 +115,7 @@ function enableUserAuthorization(username) {
         }
       }
       fs.writeFileSync(AUTHORIZATION_FILE, JSON.stringify({ authorizations }, null, 2));
+      invalidateAuthorizationCache();
       logger.info(`启用用户 ${username} 的授权成功`);
       return true;
     }
@@ -114,6 +133,7 @@ function removeUserAuthorization(username) {
     if (authorizations[username]) {
       delete authorizations[username];
       fs.writeFileSync(AUTHORIZATION_FILE, JSON.stringify({ authorizations }, null, 2));
+      invalidateAuthorizationCache();
       logger.info(`删除用户 ${username} 的授权信息成功`);
       return true;
     }
